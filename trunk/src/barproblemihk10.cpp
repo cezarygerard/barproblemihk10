@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
+#include <sys/msg.h>
+
 
 #define NUM_THREADS     5
 
@@ -48,6 +50,8 @@ void *TaskCode(void *argument)
 
 int main (int argc, char *argv[])
 {
+
+	asster(beerRatio + capuchinnoRatio + chocolateRatio == 1);
    pthread_t threads[NUM_THREADS];
    int thread_args[NUM_THREADS];
    int rc, i;
