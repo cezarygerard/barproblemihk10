@@ -9,17 +9,37 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
 
 #define NUM_THREADS     5
+
+using namespace std;
+
+pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+sem_t sem1;
+
+
 
 void *TaskCode(void *argument)
 {
    int tid;
 
    tid = *((int *) argument);
-   printf("Hello World! It's me, thread %d!\n", tid);
+
+   for(int i = 0; i < 25; i++)
+   {
+	   pthread_mutex_lock(&mutex1);
+	   cout << "Hello World ";
+	   usleep(1);
+	   cout << tid;
+	   usleep(1);
+	   cout << endl;
+	   pthread_mutex_unlock(&mutex1);
+	   usleep(1);
+   }
 
    /* optionally: insert more useful stuff here */
 
@@ -31,6 +51,8 @@ int main (int argc, char *argv[])
    pthread_t threads[NUM_THREADS];
    int thread_args[NUM_THREADS];
    int rc, i;
+
+   sem_init(&sem1, false, 5);
 
    /* create all threads */
    for (i=0; i<NUM_THREADS; ++i) {
