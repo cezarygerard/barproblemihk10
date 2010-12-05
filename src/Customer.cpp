@@ -6,12 +6,19 @@
  */
 
 #include "Customer.h"
+#include "Common.h"
 
 Customer::Customer() {
-	// TODO Auto-generated constructor stub
+	name = "Customer " + currentCustID;
 
 }
 
 Customer::~Customer() {
 	// TODO Auto-generated destructor stub
+}
+
+void Customer:: run()
+{
+
+
 }

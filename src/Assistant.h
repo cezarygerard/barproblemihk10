@@ -8,10 +8,13 @@
 #ifndef ASSISTANT_H_
 #define ASSISTANT_H_
 
-class Assistant {
+#include "Person.h"
+
+class Assistant: public Person{
 public:
 	Assistant();
 	virtual ~Assistant();
+	void run();
 };
 
 #endif /* ASSISTANT_H_ */

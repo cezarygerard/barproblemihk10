@@ -8,10 +8,13 @@
 #ifndef CUSTOMER_H_
 #define CUSTOMER_H_
 
-class Customer {
+#include "Person.h"
+
+class Customer: public Person {
 public:
 	Customer();
 	virtual ~Customer();
+	void run();
 };
 
 #endif /* CUSTOMER_H_ */
