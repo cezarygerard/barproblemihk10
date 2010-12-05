@@ -4,11 +4,12 @@
  *  Created on: Dec 3, 2010
  *      Author: czarek
  */
-
 #ifndef COMMON_H_
 #define COMMON_H_
 
 #include <assert.h>
+#include <semaphore.h>
+#include <pthread.h>
 
 //constants:
 #define	NUM_TABLES				5
@@ -28,7 +29,8 @@
 
 
 enum OrderType {beer, cappuccino, hot_chocolate } ;
-int msqid;
+
+//int msqid;
 pthread_mutex_t beerTap;// = PTHREADINITIALIZE;
 pthread_mutex_t cupboard; //??
 pthread_mutex_t milk;
@@ -36,10 +38,17 @@ pthread_mutex_t coffee;
 pthread_mutex_t chocolate;
 
 sem_t glasses;
-sem_t tables[numberOfTables];
+sem_t tables[NUM_TABLES];
 
-//let's make this the init function for pthreads to call
-void run();
+int currentCustID;
+
+
+//prints formatted text to console
+void log(const char *name, const char *message);
+void log(const char *message);
+
+
+
 
 
 #endif /* COMMON_H_ */

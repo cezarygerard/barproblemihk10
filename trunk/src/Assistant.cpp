@@ -9,10 +9,16 @@
 #include "Common.h"
 
 Assistant::Assistant() {
-	// TODO Auto-generated constructor stub
+	name = "Assistant";
 
 }
 
 Assistant::~Assistant() {
 	// TODO Auto-generated destructor stub
+}
+
+void Assistant:: run()
+{
+
+
 }
