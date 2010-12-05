@@ -23,7 +23,7 @@ Customer::~Customer() {
 
 void Customer::run()
 {
-
+	log(name, "Entered the bar");
 
 }
 
