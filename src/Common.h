@@ -9,29 +9,31 @@
 #define COMMON_H_
 
 #include <assert.h>
-//constant variables:
-const int numberOfTables;
-const int numberOfSpacecOnTable;
-const int numberOfGlasses;
-const int numberOfCups;
-const int numberOfDrinksPerCustomer;
-const double beerRatio;
-const double capuchinnoRatio;
-const double chocolateRatio;
-const int timeUntilClose;
-const int timeUntilLastCall;
+
+//constants:
+#define	NUM_TABLES				5
+#define	NUM_TABLE_UNITS			10
+#define NUM_GLASSES				20
+#define NUM_CUPS				10
+#define	MAX_DRINKS_PER_CUST		10
+#define	RATIO_BEER				0.50
+#define	RATIO_CAPPUCCINO		0.30
+#define	RATIO_HOT_CHOCOLATE		0.20
+
+#define	TIME_UNTIL_LASTCALL		25000	//milliseconds
+#define	TIME_UNTIL_CLOSE		5000	//length of last call in milliseconds
+
 //preparing delays:
 //
 
 
-enum OrderType {beer, cappuccino, chocolate } ;
+enum OrderType {beer, cappuccino, hot_chocolate } ;
 int msqid;
 pthread_mutex_t beerTap;// = PTHREADINITIALIZE;
-pthread_mutex_t cupBoard; //??
+pthread_mutex_t cupboard; //??
 pthread_mutex_t milk;
-pthread_mutex_t coffe;
+pthread_mutex_t coffee;
 pthread_mutex_t chocolate;
-pthread_mutex_t beerTap;
 
 sem_t glasses;
 sem_t tables[numberOfTables];
