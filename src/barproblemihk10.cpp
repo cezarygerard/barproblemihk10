@@ -18,19 +18,18 @@
 #include "Common.h"
 
 
-#define NUM_THREADS     5
+//#define NUM_THREADS     5
 
 using namespace std;
 
-pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
-sem_t sem1;
+//pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+//sem_t sem1;
 
 int msqid, currentCustID;
 pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
 sem_t glasses, cups, tables[NUM_TABLES];
 
 
-//DON'T DELETE this method
 void log(const char *name,const char *message)
 {
 	struct timeval now;
@@ -45,7 +44,6 @@ void log(const char *message)
 	printf("[%u.%06u] %s\n", now.tv_sec, now.tv_usec, message);
 }
 
-//DON'T DELETE this method
 void init()
 {
 	log("Bar Simulation started...");
@@ -57,28 +55,28 @@ void init()
 
 
 
-void *TaskCode(void *argument)
-{
-   int tid;
-
-   tid = *((int *) argument);
-
-   for(int i = 0; i < 25; i++)
-   {
-	   pthread_mutex_lock(&mutex1);
-	   cout << "Hello World ";
-	   usleep(1);
-	   cout << tid;
-	   usleep(1);
-	   cout << endl;
-	   pthread_mutex_unlock(&mutex1);
-	   usleep(1);
-   }
-
-   /* optionally: insert more useful stuff here */
-
-   return NULL;
-}
+//void *TaskCode(void *argument)
+//{
+//   int tid;
+//
+//   tid = *((int *) argument);
+//
+//   for(int i = 0; i < 25; i++)
+//   {
+//	   pthread_mutex_lock(&mutex1);
+//	   cout << "Hello World ";
+//	   usleep(1);
+//	   cout << tid;
+//	   usleep(1);
+//	   cout << endl;
+//	   pthread_mutex_unlock(&mutex1);
+//	   usleep(1);
+//   }
+//
+//   /* optionally: insert more useful stuff here */
+//
+//   return NULL;
+//}
 
 int main (int argc, char *argv[])
 {
