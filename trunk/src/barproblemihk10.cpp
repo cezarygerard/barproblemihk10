@@ -27,7 +27,7 @@ sem_t sem1;
 
 int msqid, currentCustID;
 pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
-sem_t glasses, tables[NUM_TABLES];
+sem_t glasses, cups, tables[NUM_TABLES];
 
 
 //DON'T DELETE this method

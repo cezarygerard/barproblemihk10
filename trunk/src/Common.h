@@ -41,11 +41,11 @@
 #define TIME_REST				100
 
 
-enum OrderType {beer, cappuccino, hot_chocolate } ;
+enum OrderType {BEER, CAPPUCCINO, HOT_CHOCOLATE } ;
 
 extern int msqid, currentCustID;
 extern pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
-extern sem_t glasses, tables[NUM_TABLES];
+extern sem_t glasses, cups, tables[NUM_TABLES];
 
 
 //prints formatted text to console

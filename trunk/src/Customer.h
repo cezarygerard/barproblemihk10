@@ -14,6 +14,11 @@
 class Customer: public Person {
 	OrderType orderType;
 	int maxDrinks;
+	sem_t favTable;
+
+	OrderType chooseDrink();
+	int chooseMaxDrinks();
+	sem_t chooseFavTable();
 public:
 	Customer();
 	virtual ~Customer();
