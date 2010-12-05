@@ -6,6 +6,7 @@
  */
 
 #include "Assistant.h"
+#include "Common.h"
 
 Assistant::Assistant() {
 	// TODO Auto-generated constructor stub

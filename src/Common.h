@@ -36,5 +36,8 @@ pthread_mutex_t beerTap;
 sem_t glasses;
 sem_t tables[numberOfTables];
 
+//let's make this the init function for pthreads to call
+void run();
+
 
 #endif /* COMMON_H_ */
