@@ -25,6 +25,10 @@ using namespace std;
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 sem_t sem1;
 
+int msqid, currentCustID;
+pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
+sem_t glasses, tables[NUM_TABLES];
+
 
 //DON'T DELETE this method
 void log(const char *name,const char *message)

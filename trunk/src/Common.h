@@ -30,17 +30,9 @@
 
 enum OrderType {beer, cappuccino, hot_chocolate } ;
 
-//int msqid;
-pthread_mutex_t beerTap;// = PTHREADINITIALIZE;
-pthread_mutex_t cupboard; //??
-pthread_mutex_t milk;
-pthread_mutex_t coffee;
-pthread_mutex_t chocolate;
-
-sem_t glasses;
-sem_t tables[NUM_TABLES];
-
-int currentCustID;
+extern int msqid, currentCustID;
+extern pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
+extern sem_t glasses, tables[NUM_TABLES];
 
 
 //prints formatted text to console
