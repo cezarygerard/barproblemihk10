@@ -8,13 +8,17 @@
 #ifndef PERSON_H_
 #define PERSON_H_
 
+#include <string>
+
+using namespace std;
+
 //Base class for Assistant, Barmaid, Customer, Landlord
 class Person {
 protected:
-	const char* name;
+	string name;
 	int tid;
 public:
-	const char* getName() {
+	string getName() {
 		return name;
 	}
 	int getTid() {

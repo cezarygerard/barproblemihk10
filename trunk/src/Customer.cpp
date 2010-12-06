@@ -5,16 +5,23 @@
  *      Author: hoodles
  */
 
+#include <stdio.h>
 #include "Customer.h"
 #include "Common.h"
+#include <string>
+#include <sstream>
 
 Customer::Customer() {
-	name = "Customer " + currentCustID;
-	srand(time(NULL));
+	ostringstream temp;
+	temp << "Customer_" << currentCustID;
+	name = temp.str();
+
+	//sprintf(temp, "Customer_%s", currentCustID);
+	//name = "Customer " + currentCustID;
 
 	orderType = chooseDrink();
 	maxDrinks = chooseMaxDrinks();
-	favTable = chooseFavTable();
+	favTableIndex = chooseFavTable();
 }
 
 Customer::~Customer() {
@@ -23,18 +30,24 @@ Customer::~Customer() {
 
 void Customer::run()
 {
-	log(name, "Entered the bar");
+	//char msg[256];
+	//msg = "Entered the bar. TYPE:" /*+  typeAsString(orderType)*/ + "  DRINKS: " + maxDrinks + "  TABLE: " + favTableIndex;
+	//sprintf(msg, "Entered the bar. TYPE: %s  DRINKS: %d  TABLE: %d", typeAsString(orderType), maxDrinks, favTableIndex);
+
+	ostringstream temp;
+	temp << "Entered the bar. TYPE: " << typeAsString(orderType) << "  DRINKS: " << maxDrinks << "  TABLE: " << favTableIndex;
+	string msg = temp.str();
+	log(name, msg);
 
 }
 
 OrderType Customer::chooseDrink()
 {
-	srand(time(NULL));
 	//random number between 0 and 99
 	int num = rand() % 100;
 	if (num < RATIO_BEER * 100)
 		return BEER;
-	else if (RATIO_BEER * 100 <= num < (RATIO_CAPPUCCINO + RATIO_BEER) * 100)
+	else if (RATIO_BEER * 100 <= num && num < (RATIO_CAPPUCCINO + RATIO_BEER) * 100)
 		return CAPPUCCINO;
 	//we know that the remaining proportion is due to RATIO_HOT_CHOCOLATE from initial assert()
 	else if (num >= (RATIO_CAPPUCCINO + RATIO_BEER) * 100)
@@ -43,12 +56,10 @@ OrderType Customer::chooseDrink()
 
 int Customer::chooseMaxDrinks()
 {
-	srand(time(NULL));
 	return rand() % MAX_DRINKS_PER_CUST + 1;
 }
 
-sem_t Customer::chooseFavTable()
+int Customer::chooseFavTable()
 {
-	srand(time(NULL));
-	return tables[rand() % NUM_TABLES];
+	return rand() % NUM_TABLES;
 }

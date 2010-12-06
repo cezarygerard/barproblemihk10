@@ -13,9 +13,11 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
+#include <string>
 #include <sys/msg.h>
 #include <sys/time.h>
 #include "Common.h"
+#include "Customer.h"
 
 
 //#define NUM_THREADS     5
@@ -30,23 +32,38 @@ pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
 sem_t glasses, cups, tables[NUM_TABLES];
 
 
-void log(const char *name,const char *message)
+void log(string &name,string &message)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
-	printf("  [%u.%06u] %s: %s\n", now.tv_sec, now.tv_usec, name, message);
+	printf("  [%u.%06u] %s: %s\n", now.tv_sec, now.tv_usec, name.c_str(), message.c_str());
 }
 
-void log(const char *message)
+void log(string &message)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
-	printf("[%u.%06u] %s\n", now.tv_sec, now.tv_usec, message);
+	printf("[%u.%06u] %s\n", now.tv_sec, now.tv_usec, message.c_str());
+}
+
+const char* typeAsString(OrderType type)
+{
+	switch (type) {
+	case BEER:
+		return "Beer";
+	case CAPPUCCINO:
+		return "Cappuccnio";
+	case HOT_CHOCOLATE:
+		return "Hot Chocolate";
+	default:
+		return "NO CHOICE";
+	}
 }
 
 void init()
 {
-	log("Bar Simulation started...");
+	string temp = "Bar simulation started...";
+	log(temp);
 	currentCustID = 0;
 
 	//set up the resources, Barmaid, Assistant, Landlord
@@ -84,6 +101,15 @@ int main (int argc, char *argv[])
 	init();
 
 
+	srand(time(NULL));
+	for (int i=0; i < 5; i++)
+	{
+		Customer* cust = new Customer();
+		cust->run();
+		currentCustID++;
+
+		delete cust;
+	}
 
 //	pthread_t threads[NUM_THREADS];
 //   int thread_args[NUM_THREADS];
@@ -106,6 +132,7 @@ int main (int argc, char *argv[])
 //   }
 
 
-	log("Bar Simulation exiting...");
+	string temp = "Bar simulation exiting...";
+	log(temp);
 	exit(EXIT_SUCCESS);
 }
