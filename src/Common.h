@@ -10,6 +10,9 @@
 #include <assert.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <string>
+
+using namespace std;
 
 //constants:
 #define	NUM_TABLES				5
@@ -41,7 +44,8 @@
 #define TIME_REST				100
 
 
-enum OrderType {BEER, CAPPUCCINO, HOT_CHOCOLATE } ;
+enum OrderType {BEER, CAPPUCCINO, HOT_CHOCOLATE };
+const char* typeAsString(OrderType type);
 
 extern int msqid, currentCustID;
 extern pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
@@ -49,8 +53,8 @@ extern sem_t glasses, cups, tables[NUM_TABLES];
 
 
 //prints formatted text to console
-void log(const char *name, const char *message);
-void log(const char *message);
+void log(string &name, string &message);
+void log(string &message);
 
 
 #endif /* COMMON_H_ */
