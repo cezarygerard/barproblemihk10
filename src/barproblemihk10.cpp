@@ -56,7 +56,7 @@ const char* typeAsString(OrderType type)
 	case HOT_CHOCOLATE:
 		return "Hot Chocolate";
 	default:
-		return "NO CHOICE";
+		return "";
 	}
 }
 
@@ -102,11 +102,13 @@ int main (int argc, char *argv[])
 
 
 	srand(time(NULL));
-	for (int i=0; i < 5; i++)
+	for (int i=0; i < 20; i++)
 	{
 		Customer* cust = new Customer();
 		cust->run();
 		currentCustID++;
+
+		usleep(TIME_INTERVAL_CUST * 1000);
 
 		delete cust;
 	}
