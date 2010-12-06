@@ -16,13 +16,9 @@ using namespace std;
 class Person {
 protected:
 	string name;
-	int tid;
 public:
 	string getName() {
 		return name;
-	}
-	int getTid() {
-		return tid;
 	}
 	virtual void run() =0;
 };
