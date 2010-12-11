@@ -141,7 +141,7 @@ void Assistant::doCleanupRound()
 }
 void Assistant:: run()
 {
-	int i;
+	//here sould runThread start with doStuff method, but its a bit difficult since doStuff is not static
 	//
 	//pthread_create( &runThread, NULL, &(this->doStuff) ,(void *) i);
 	//pthread_create(runThread, NULL,(void *) &doStuff(),(void *) i);
