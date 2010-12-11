@@ -10,6 +10,7 @@
 #include "Common.h"
 #include <string>
 #include <sstream>
+#include <cstdlib>
 
 Customer::Customer() {
 	ostringstream temp;

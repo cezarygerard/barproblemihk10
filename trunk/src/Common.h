@@ -11,6 +11,9 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <string>
+//#include "Table.h"
+
+class Table;
 
 using namespace std;
 
@@ -27,7 +30,7 @@ using namespace std;
 #define	RATIO_HOT_CHOCOLATE		0.20
 
 #define	TIME_UNTIL_LASTCALL		25000	//milliseconds
-#define	TIME_UNTIL_CLOSE		5000	//length of last call in milliseconds
+#define	TIME_UNTIL_CLOSE		5000	//length otf last call in milliseconds
 #define TIME_INTERVAL_CUST		200		//how often a customer enters the bar
 #define TIME_TO_DRINK			50		//how long it takes for a customer to consume any drink
 
@@ -45,12 +48,14 @@ using namespace std;
 
 
 enum OrderType {BEER, CAPPUCCINO, HOT_CHOCOLATE };
+enum DishType {CUP, GLASS};
+
 const char* typeAsString(OrderType type);
 
 extern int msqid, currentCustID;
 extern pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
-extern sem_t glasses, cups, tables[NUM_TABLES];
-
+extern sem_t glasses, cups;//, tables[NUM_TABLES];
+extern Table tables[NUM_TABLES];
 
 //prints formatted text to console
 void log(string &name, string &message);

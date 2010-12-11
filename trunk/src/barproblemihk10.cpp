@@ -18,7 +18,8 @@
 #include <sys/time.h>
 #include "Common.h"
 #include "Customer.h"
-
+#include "Assistant.h"
+#include "Table.h"
 
 //#define NUM_THREADS     5
 
@@ -29,8 +30,8 @@ using namespace std;
 
 int msqid, currentCustID;
 pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
-sem_t glasses, cups, tables[NUM_TABLES];
-
+sem_t glasses, cups;
+Table tables[NUM_TABLES];
 
 void log(string &name,string &message)
 {
@@ -64,7 +65,15 @@ void init()
 {
 	string temp = "Bar simulation started...";
 	log(temp);
+
 	currentCustID = 0;
+
+	Assistant* ass = new Assistant();
+	ass ->run();
+
+	//landlord.register(ass)
+
+
 
 	//set up the resources, Barmaid, Assistant, Landlord
 	//add Barmaid and Assistant to Landlord's list (he must leave bar after everyone leaves and announce last call)
@@ -105,6 +114,7 @@ int main (int argc, char *argv[])
 	for (int i=0; i < 20; i++)
 	{
 		Customer* cust = new Customer();
+
 		cust->run();
 		currentCustID++;
 
