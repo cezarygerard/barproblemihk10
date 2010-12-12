@@ -53,7 +53,7 @@ public:
 
 
 	///infinite loop, should be thread's method
-	void run();
+	static void run();
 
 	virtual ~Assistant();
 };
