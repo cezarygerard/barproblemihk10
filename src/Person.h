@@ -20,7 +20,8 @@ public:
 	string getName() {
 		return name;
 	}
-	virtual void run() =0;
+
+	//virtual void run() =0;
 };
 
 

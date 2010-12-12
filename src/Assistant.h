@@ -11,7 +11,7 @@
 #include <pthread.h>
 #include "Person.h"
 #include <sys/time.h>
-
+#include "Landlord.h"
 class Assistant: public Person{
 	pair<int,int> collectDishes();
 	int cleanDishes(int dishes);
@@ -36,6 +36,7 @@ class Assistant: public Person{
 	///useful with converting time structures:
 	static const long long nsToS= 1000 * 1000 * 1000;
 
+
 	void doStuff();
 
 	///final cleaning after all customers have left
@@ -53,8 +54,8 @@ public:
 
 
 	///infinite loop, should be thread's method
-	static void run();
-
+	//static void* run(Landlord* ll);
+	static void* run(void* ll);
 	virtual ~Assistant();
 };
 
