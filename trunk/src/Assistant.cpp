@@ -11,11 +11,12 @@
 #include <sstream>
 #include "Table.h"
 
-Assistant::Assistant() {
+
+Assistant::Assistant(){
 	name = "Assistant";
-	//count_mutex;//     = PTHREAD_MUTEX_INITIALIZER;
-	//condition_cond;//  = PTHREAD_COND_INITIALIZER;
 	timeToFinish = false;
+	pthread_mutex_init(&count_mutex, NULL);
+	pthread_cond_init(&condition_cond, NULL);
 }
 
 Assistant::~Assistant() {
@@ -57,6 +58,17 @@ void Assistant::takeBreak()
 	pthread_mutex_lock( &count_mutex );
 	ts.tv_nsec = (TIME_REST * msToNs + ts.tv_nsec) % nsToS;
 	ts.tv_sec += (TIME_REST * msToNs + ts.tv_nsec) / nsToS;
+	/*TEST
+	timeval now;
+	gettimeofday(&now, NULL);
+	cout<<"now:    " <<(long)now.tv_sec << " " <<(long) now.tv_usec<<endl;
+	cout<<"wakeup: "
+			<< (long)ts.tv_sec << " "
+			<< (long)ts.tv_nsec
+			<<endl;
+	cout<<(TIME_REST * msToNs + ts.tv_nsec) % nsToS<<endl;
+	cout<<(TIME_REST * msToNs + ts.tv_nsec) / nsToS<<endl;
+	*/
 	pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
 	pthread_mutex_unlock( &count_mutex );
 }
@@ -139,10 +151,13 @@ void Assistant::doCleanupRound()
 	string msg = temp.str();
 	log(name, msg);
 }
-void Assistant:: run()
+//void* Assistant:: run(Landlord* landllord)
+void* Assistant::run(void* landllord)
 {
 	Assistant* ass = new Assistant();
+	//((Landlord)landllord)->registerAssistent(this)
 	ass->doStuff();
+	return NULL;
 }
 
 void Assistant::doStuff()

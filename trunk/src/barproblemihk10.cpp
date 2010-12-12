@@ -68,9 +68,9 @@ void init()
 
 	currentCustID = 0;
 
-	Assistant* ass = new Assistant();
-	ass ->run();
-
+	pthread_t assistantThread;
+	Landlord* ll; //uninitialized pointer only for test purposes, look into Assistant::run in Assistant.cpp
+	pthread_create(&assistantThread, NULL, Assistant::run, (void *)ll);
 	//landlord.register(ass)
 
 
