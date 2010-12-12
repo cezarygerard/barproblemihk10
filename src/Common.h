@@ -55,7 +55,7 @@ enum DishType {CUP, GLASS};
 
 const char* typeAsString(OrderType type);
 
-extern int msqid, currentCustID;
+extern int msqid, currentCustID; //currentCustID shound't be Customer's class static field? incremented in constructor?
 extern pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
 extern sem_t glasses, cups;//, tables[NUM_TABLES];
 extern Table tables[NUM_TABLES];
@@ -63,6 +63,10 @@ extern Table tables[NUM_TABLES];
 //prints formatted text to console
 void log(string &name, string &message);
 void log(string &message);
+int getRand();
+
+const long long msToNs = 1000 * 1000;
+const long long nsToS= 1000 * 1000 * 1000;
 
 
 #endif /* COMMON_H_ */
