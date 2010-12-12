@@ -28,10 +28,15 @@ using namespace std;
 //pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 //sem_t sem1;
 
+
 int msqid, currentCustID;
 pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
 sem_t glasses, cups;
 Table tables[NUM_TABLES];
+//used in getRand() which call rand_r(*uint);
+volatile unsigned int seed =0;
+//should be global or returned by init????
+Landlord* ll;
 
 void log(string &name,string &message)
 {
@@ -61,6 +66,16 @@ const char* typeAsString(OrderType type)
 	}
 }
 
+int getRand()
+{
+	if(seed ==0 )
+	{
+		seed = time(NULL);
+	}
+	return  rand_r((unsigned int*) &seed);
+
+}
+
 void init()
 {
 	string temp = "Bar simulation started...";
@@ -68,12 +83,14 @@ void init()
 
 	currentCustID = 0;
 
-	pthread_t assistantThread;
-	Landlord* ll; //uninitialized pointer only for test purposes, look into Assistant::run in Assistant.cpp
-	pthread_create(&assistantThread, NULL, Assistant::run, (void *)ll);
-	//landlord.register(ass)
+	ll = new Landlord(); //uninitialized pointer only for test purposes, look into Assistant::run in Assistant.cpp
 
+	//This will create new assistant and start the thread
+	Assistant::run(ll);
 
+	sem_t glasses, cups;
+	sem_init(&glasses, 0 , NUM_GLASSES);
+	sem_init(&cups, 0 , NUM_CUPS);
 
 	//set up the resources, Barmaid, Assistant, Landlord
 	//add Barmaid and Assistant to Landlord's list (he must leave bar after everyone leaves and announce last call)
@@ -109,20 +126,25 @@ int main (int argc, char *argv[])
 	assert(RATIO_BEER + RATIO_CAPPUCCINO + RATIO_HOT_CHOCOLATE == 1);
 	init();
 
-
+	timeval t_now, t_finish;
+	gettimeofday(&t_now, NULL);
 	srand(time(NULL));
-	for (int i=0; i < 20; i++)
+	t_finish.tv_sec = t_now.tv_sec + ( TIME_UNTIL_CLOSE + TIME_UNTIL_LASTCALL) /1000 ;
+	while(t_finish.tv_sec > t_now.tv_sec)
+	//for (int i=0; i < 50; i++)
 	{
-		Customer* cust = new Customer();
-
-		cust->run();
+//		Customer* cust = new Customer();
+//		cust->run();
+//		currentCustID++;
+		Customer::run(ll);
 		currentCustID++;
-
 		usleep(TIME_INTERVAL_CUST * 1000);
-
-		delete cust;
+		gettimeofday(&t_now, NULL);
 	}
 
+//	gettimeofday(&t2, NULL);
+//	long long timeToFinish =( TIME_UNTIL_CLOSE + TIME_UNTIL_LASTCALL) * 1000 + (t1.tv_sec  - t2.tv_sec ) * 10E6 + (t1.tv_usec - t2.tv_usec);
+//	usleep(timeToFinish);
 //	pthread_t threads[NUM_THREADS];
 //   int thread_args[NUM_THREADS];
 //   int rc, i;

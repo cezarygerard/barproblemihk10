@@ -17,22 +17,22 @@ class Assistant: public Person{
 	void takeBreak() ;
 
 	///mutex and conditional variable used to force thread to timeout on condition_cond using pthread_cond_timedwait
-	pthread_mutex_t count_mutex ;
-	pthread_cond_t  condition_cond ;
+	//pthread_mutex_t count_mutex ;
+	//pthread_cond_t  condition_cond ;
 
 	pthread_t runThread;
 
 	bool timeToFinish;
 
 	///time structures:
-	timeval tp;
-	timespec ts;
+	//timeval tp;
+	//timespec ts;
 
 	///useful with converting time structures:
-	static const long long msToNs = 1000 * 1000;
+	//static const long long msToNs = 1000 * 1000;
 
 	///useful with converting time structures:
-	static const long long nsToS= 1000 * 1000 * 1000;
+	//static const long long nsToS= 1000 * 1000 * 1000;
 
 
 	void doStuff();
@@ -44,16 +44,16 @@ class Assistant: public Person{
 	///One cleaning go
 	void doCleanupRound();
 
-//	static void thread_fun() ;
+	static void* threadFun(void *);
 
 public:
 	Assistant();
 
-
-
 	///infinite loop, should be thread's method
 	//static void* run(Landlord* ll);
-	static void* run(void* ll);
+	//static void* run(void* landlord);
+	static void run(Landlord* ll);
+
 	virtual ~Assistant();
 };
 
