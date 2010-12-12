@@ -13,8 +13,8 @@
 
 Assistant::Assistant() {
 	name = "Assistant";
-	count_mutex     = PTHREAD_MUTEX_INITIALIZER;
-	condition_cond  = PTHREAD_COND_INITIALIZER;
+	//count_mutex;//     = PTHREAD_MUTEX_INITIALIZER;
+	//condition_cond;//  = PTHREAD_COND_INITIALIZER;
 	timeToFinish = false;
 }
 
@@ -141,20 +141,9 @@ void Assistant::doCleanupRound()
 }
 void Assistant:: run()
 {
-	//here sould runThread start with doStuff method, but its a bit difficult since doStuff is not static
-	//
-	//pthread_create( &runThread, NULL, &(this->doStuff) ,(void *) i);
-	//pthread_create(runThread, NULL,(void *) &doStuff(),(void *) i);
-	//pthread_create(&ru)
+	Assistant* ass = new Assistant();
+	ass->doStuff();
 }
-
-/*
-void Assistant::thread_fun()
-{
-
-return result ;
-}
-*/
 
 void Assistant::doStuff()
 {
