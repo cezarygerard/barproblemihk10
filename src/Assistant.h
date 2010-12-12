@@ -8,9 +8,7 @@
 #ifndef ASSISTANT_H_
 #define ASSISTANT_H_
 
-#include <pthread.h>
 #include "Person.h"
-#include <sys/time.h>
 #include "Landlord.h"
 class Assistant: public Person{
 	pair<int,int> collectDishes();

@@ -11,7 +11,6 @@
 #ifndef TABLE_H_
 #define TABLE_H_
 
-#include <pthread.h>
 #include "Common.h"
 
 class Table {
