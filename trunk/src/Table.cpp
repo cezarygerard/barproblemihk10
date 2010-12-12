@@ -11,7 +11,7 @@
 Table::Table() {
 	// TODO Auto-generated constructor stub
 	sem_init(&emptyUnits_, 0 , NUM_TABLE_UNITS);
-	dishMutex_ = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_init(&dishMutex_, 0);
 	glasses_ =0;
 	cups_ = 0;
 }
@@ -25,9 +25,9 @@ void Table::putDish(DishType dt)
 {
 	sem_wait(&emptyUnits_);
 
-	pthread_mutex_lock( &dishMutex_ );
 	int val;
 	sem_getvalue(&emptyUnits_, &val);
+	pthread_mutex_lock( &dishMutex_ );
 	switch(dt)
 	{
 	case GLASS:
