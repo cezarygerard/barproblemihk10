@@ -25,62 +25,65 @@ Assistant::~Assistant() {
 
 std::pair<int,int> Assistant::replaceDishes(pair<int,int> collectedDishes)
 {
-	gettimeofday(&tp, NULL);
-	ts.tv_sec  = tp.tv_sec;
-	ts.tv_nsec = tp.tv_usec * 1000;
-
-	pthread_mutex_lock( &count_mutex );
+//	gettimeofday(&tp, NULL);
+//	ts.tv_sec  = tp.tv_sec;
+//	ts.tv_nsec = tp.tv_usec * 1000;
+//
+//	pthread_mutex_lock( &count_mutex );
 	for (int j = 0; j< collectedDishes.first ; j++)
 	{
 		sem_post(&glasses);
-		ts.tv_nsec = (TIME_REPLACE_DISH * msToNs + ts.tv_nsec) % nsToS;
-		ts.tv_sec += (TIME_REPLACE_DISH* msToNs + ts.tv_nsec) / nsToS;
-		pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
+		usleep(TIME_REPLACE_DISH *1000);
+//		ts.tv_nsec = (TIME_REPLACE_DISH * msToNs + ts.tv_nsec) % nsToS;
+//		ts.tv_sec += (TIME_REPLACE_DISH* msToNs + ts.tv_nsec) / nsToS;
+//		pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
 	}
 
 	for (int j = 0; j< collectedDishes.second ; j++)
 	{
 		sem_post(&cups);
-		ts.tv_nsec = (TIME_REPLACE_DISH * msToNs + ts.tv_nsec) % nsToS;
-		ts.tv_sec += (TIME_REPLACE_DISH* msToNs + ts.tv_nsec) / nsToS;
-		pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
+		usleep(TIME_REPLACE_DISH *1000);
+//		ts.tv_nsec = (TIME_REPLACE_DISH * msToNs + ts.tv_nsec) % nsToS;
+//		ts.tv_sec += (TIME_REPLACE_DISH* msToNs + ts.tv_nsec) / nsToS;
+//		pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
 	}
-	pthread_mutex_unlock( &count_mutex );
+//	pthread_mutex_unlock( &count_mutex );
 	return collectedDishes;
 }
 
 void Assistant::takeBreak()
 {
-	gettimeofday(&tp, NULL);
-	ts.tv_sec  = tp.tv_sec;
-	ts.tv_nsec = tp.tv_usec * 1000;
-
-	pthread_mutex_lock( &count_mutex );
-	ts.tv_nsec = (TIME_REST * msToNs + ts.tv_nsec) % nsToS;
-	ts.tv_sec += (TIME_REST * msToNs + ts.tv_nsec) / nsToS;
-	/*TEST
-	timeval now;
-	gettimeofday(&now, NULL);
-	cout<<"now:    " <<(long)now.tv_sec << " " <<(long) now.tv_usec<<endl;
-	cout<<"wakeup: "
-			<< (long)ts.tv_sec << " "
-			<< (long)ts.tv_nsec
-			<<endl;
-	cout<<(TIME_REST * msToNs + ts.tv_nsec) % nsToS<<endl;
-	cout<<(TIME_REST * msToNs + ts.tv_nsec) / nsToS<<endl;
-	*/
-	pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
-	pthread_mutex_unlock( &count_mutex );
+	usleep(TIME_REST *1000);
+//	gettimeofday(&tp, NULL);
+//	ts.tv_sec  = tp.tv_sec;
+//	ts.tv_nsec = tp.tv_usec * 1000;
+//
+//	pthread_mutex_lock( &count_mutex );
+//	ts.tv_nsec = (TIME_REST * msToNs + ts.tv_nsec) % nsToS;
+//	ts.tv_sec += (TIME_REST * msToNs + ts.tv_nsec) / nsToS;
+//	/*TEST
+//	timeval now;
+//	gettimeofday(&now, NULL);
+//	cout<<"now:    " <<(long)now.tv_sec << " " <<(long) now.tv_usec<<endl;
+//	cout<<"wakeup: "
+//			<< (long)ts.tv_sec << " "
+//			<< (long)ts.tv_nsec
+//			<<endl;
+//	cout<<(TIME_REST * msToNs + ts.tv_nsec) % nsToS<<endl;
+//	cout<<(TIME_REST * msToNs + ts.tv_nsec) / nsToS<<endl;
+//	*/
+//	pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
+//	pthread_mutex_unlock( &count_mutex );
 }
 
 std::pair<int,int> Assistant::collectDishes()
 {
 	int totalCollected = 0;
 	pair<int,int> collectedDishes = pair<int,int>(0,0);
-	gettimeofday(&tp, NULL);
-	ts.tv_sec  = tp.tv_sec;
-	ts.tv_nsec = tp.tv_usec * 1000;
-	pthread_mutex_lock( &count_mutex );
+//	gettimeofday(&tp, NULL);
+//	ts.tv_sec  = tp.tv_sec;
+//	ts.tv_nsec = tp.tv_usec * 1000;
+//	pthread_mutex_lock( &count_mutex );
 	for (int i = 0; i < NUM_TABLES; i++)
 	{
 		DishType collectedDish;
@@ -97,9 +100,10 @@ std::pair<int,int> Assistant::collectDishes()
 			default:
 				break;
 			}
-			ts.tv_nsec = (TIME_COLLECT_DISH * msToNs + ts.tv_nsec) % nsToS;
-			ts.tv_sec += (TIME_COLLECT_DISH * msToNs + ts.tv_nsec) / nsToS;
-			pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
+//			ts.tv_nsec = (TIME_COLLECT_DISH * msToNs + ts.tv_nsec) % nsToS;
+//			ts.tv_sec += (TIME_COLLECT_DISH * msToNs + ts.tv_nsec) / nsToS;
+//			pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
+			usleep(TIME_COLLECT_DISH *1000);
 		}
 		assert(totalCollected == collectedDishes.first + collectedDishes.second);
 		/*TEST:
@@ -109,26 +113,28 @@ std::pair<int,int> Assistant::collectDishes()
 		cout<<(long)ts.tv_sec << " " <<(long) ts.tv_nsec<<endl;
 		 */
 	}
-	pthread_mutex_unlock( &count_mutex );
+//	pthread_mutex_unlock( &count_mutex );
 	return collectedDishes;
 }
 
 int Assistant::cleanDishes(int dishes)
 {
 	int cleanedDishes = 0; //artificial value, should always equal "dishes"
-	gettimeofday(&tp, NULL);
-	ts.tv_sec  = tp.tv_sec;
-	ts.tv_nsec = tp.tv_usec * 1000;
 
-	pthread_mutex_lock( &count_mutex );
+//	gettimeofday(&tp, NULL);
+//	ts.tv_sec  = tp.tv_sec;
+//	ts.tv_nsec = tp.tv_usec * 1000;
+//
+//	pthread_mutex_lock( &count_mutex );
 	for (int j = 0; j< dishes ; j++)
 	{
-		ts.tv_nsec = (TIME_WASH_DISH * msToNs + ts.tv_nsec) % nsToS;
-		ts.tv_sec += (TIME_WASH_DISH* msToNs + ts.tv_nsec) / nsToS;
-		pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
+//		ts.tv_nsec = (TIME_WASH_DISH * msToNs + ts.tv_nsec) % nsToS;
+//		ts.tv_sec += (TIME_WASH_DISH* msToNs + ts.tv_nsec) / nsToS;
+//		pthread_cond_timedwait(&condition_cond, &count_mutex, &ts);
 		cleanedDishes++;
+		usleep(TIME_WASH_DISH *1000);
 	}
-	pthread_mutex_unlock( &count_mutex );
+//	pthread_mutex_unlock( &count_mutex );
 	return cleanedDishes;
 
 }
