@@ -8,7 +8,7 @@
 #ifndef PERSON_H_
 #define PERSON_H_
 
-#include <string>
+#include "Common.h"
 
 using namespace std;
 

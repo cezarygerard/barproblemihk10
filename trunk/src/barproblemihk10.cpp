@@ -37,14 +37,14 @@ void log(string &name,string &message)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
-	printf("  [%u.%06u] %s: %s\n", now.tv_sec, now.tv_usec, name.c_str(), message.c_str());
+	printf("  [%u.%06u] %s: %s\n", (unsigned int)now.tv_sec, (unsigned int)now.tv_usec, name.c_str(), message.c_str());
 }
 
 void log(string &message)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
-	printf("[%u.%06u] %s\n", now.tv_sec, now.tv_usec, message.c_str());
+	printf("[%u.%06u] %s\n", (unsigned int)now.tv_sec, (unsigned int)now.tv_usec, message.c_str());
 }
 
 const char* typeAsString(OrderType type)
@@ -53,7 +53,7 @@ const char* typeAsString(OrderType type)
 	case BEER:
 		return "Beer";
 	case CAPPUCCINO:
-		return "Cappuccnio";
+		return "Cappuccino";
 	case HOT_CHOCOLATE:
 		return "Hot Chocolate";
 	default:

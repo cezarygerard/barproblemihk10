@@ -5,12 +5,7 @@
  *      Author: hoodles
  */
 
-#include <stdio.h>
 #include "Customer.h"
-#include "Common.h"
-#include <string>
-#include <sstream>
-#include <cstdlib>
 
 Customer::Customer() {
 	ostringstream temp;
@@ -53,6 +48,7 @@ OrderType Customer::chooseDrink()
 	//we know that the remaining proportion is due to RATIO_HOT_CHOCOLATE from initial assert()
 	else if (num >= (RATIO_CAPPUCCINO + RATIO_BEER) * 100)
 		return HOT_CHOCOLATE;
+	return BEER;
 }
 
 int Customer::chooseMaxDrinks()
