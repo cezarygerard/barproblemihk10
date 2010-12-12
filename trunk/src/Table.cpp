@@ -23,11 +23,23 @@ Table::~Table() {
 
 void Table::putDish(DishType dt)
 {
+
+//	resource availability is checked in
+//	sem_wait(&emptyUnits_);
+//	if there is no space on table thread waits here, before
+//	pthread_mutex_lock( &dishMutex_ );
+//
+//	sem_getvalue(&emptyUnits_, &val);
+//	is used to acquire the value of semaphore into "val"
+//	only for the assertion beneath.
+
 	sem_wait(&emptyUnits_);
+
+	pthread_mutex_lock( &dishMutex_ );
 
 	int val;
 	sem_getvalue(&emptyUnits_, &val);
-	pthread_mutex_lock( &dishMutex_ );
+
 	switch(dt)
 	{
 	case GLASS:
