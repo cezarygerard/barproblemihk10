@@ -81,12 +81,12 @@ void init()
 	ostringstream str;
 	string temp = "Bar simulation started...\n";
 	log(temp);
-	drink_q_id = msgget(DRINK_Q, IPC_CREAT|IPC_PRIVATE);
+	drink_q_id = msgget(DRINK_Q, 0666|IPC_CREAT|IPC_PRIVATE);
 	if(drink_q_id == -1)
 	{
 		str << "failed to create drink_q errno:" << errno;
 	}
-	greeting_q_id = msgget(GREET_Q, IPC_CREAT|IPC_PRIVATE);
+	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
 	if(greeting_q_id == -1)
 	{
 		str << "failed to create greet_q errno:" << errno;

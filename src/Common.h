@@ -29,8 +29,8 @@ class Table;
 
 
 //msg queue declarations:
-#define DRINK_Q 0x1
-#define GREET_Q 0x3
+#define DRINK_Q 0x4
+#define GREET_Q 0x5
 #define CUSTOMER_START_Q 0x20
 
 
