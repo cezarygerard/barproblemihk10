@@ -7,6 +7,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <sys/stat.h>
+#include <errno.h>
 #include <assert.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -15,10 +17,22 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <sys/time.h>
+#include <sys/msg.h>
+#include <iostream>
+#include <sstream>
+#include <list>
+//#include "Table.h"
+
+using namespace std;
 
 class Table;
 
-using namespace std;
+
+//msg queue declarations:
+#define DRINK_Q 0x1
+#define GREET_Q 0x3
+#define CUSTOMER_START_Q 0x20
+
 
 //constants:
 #define	NUM_TABLES				5
@@ -52,21 +66,22 @@ using namespace std;
 
 enum OrderType {BEER, CAPPUCCINO, HOT_CHOCOLATE };
 enum DishType {CUP, GLASS};
-
+enum GreetingEventType{ ENTERING, LEAVING };
 const char* typeAsString(OrderType type);
 
-extern int msqid, currentCustID; //currentCustID shound't be Customer's class static field? incremented in constructor?
+extern int msqid;
 extern pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
 extern sem_t glasses, cups;//, tables[NUM_TABLES];
 extern Table tables[NUM_TABLES];
 
+
 //prints formatted text to console
 void log(string &name, string &message);
 void log(string &message);
+
 int getRand();
 
 const long long msToNs = 1000 * 1000;
 const long long nsToS= 1000 * 1000 * 1000;
-
 
 #endif /* COMMON_H_ */

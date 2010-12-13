@@ -8,7 +8,10 @@
 #ifndef BARMAID_H_
 #define BARMAID_H_
 
-class Barmaid {
+#include "BarEmp.h"
+#include "Common.h"
+
+class Barmaid: public BarEmp {
 public:
 	Barmaid();
 	virtual ~Barmaid();

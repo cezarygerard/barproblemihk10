@@ -6,58 +6,75 @@
  */
 
 #include "Customer.h"
-#include <sys/time.h>
-#include <iostream>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include "Table.h"
 
-Customer::Customer() {
+Customer::Customer(int cid, int cmqi, int dqi, int gqi) {
 	ostringstream temp;
-	temp << "Customer_" << currentCustID;
+	temp << "Customer_" << cid;
 	name = temp.str();
 
-	//sprintf(temp, "Customer_%s", currentCustID);
-	//name = "Customer " + currentCustID;
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&condition, NULL);
+
 	orderType = chooseDrink();
 	drinksLeft = chooseMaxDrinks();
 	favTableIndex = chooseFavTable();
+
+	my_q_id = cmqi;
+	my_id = cid;
+	drink_q_id = dqi;
+	greeting_q_id = gqi;
 }
 
 Customer::~Customer() {
 	// TODO Auto-generated destructor stub
 }
 
-void Customer::run(void* landllord)
-{
-	//char msg[256];
-	//msg = "Entered the bar. TYPE:" /*+  typeAsString(orderType)*/ + "  DRINKS: " + maxDrinks + "  TABLE: " + favTableIndex;
-	//sprintf(msg, "Entered the bar. TYPE: %s  DRINKS: %d  TABLE: %d", typeAsString(orderType), maxDrinks, favTableIndex);
+void Customer::greetLandlord(bool leaving){
+	Landlord::Greeting_Msg_Args tosend;
+	tosend.cust_id = my_id;
+	tosend.q_id = my_q_id;
+	tosend.leaving = leaving;
 
-	//Customer* c = new Customer();
-	//((Landlord *)landllord)->registerAssistent(this)
-	pthread_t customerThread;
-	pthread_create(&customerThread, NULL, Customer::threadFun, (void *)landllord);
+	string msg = "";
+	if(leaving)
+		msg = "waiting to say goodbye to landlord";
+	else
+		msg = "Waiting for greeting from landlord.";
+	log(name, msg);
+	int val = msgsnd(greeting_q_id, (void*)&tosend, sizeof(Landlord::Greeting_Msg_Args), 0);
+	if(val == -1) {
+		msg = "failed to send greeting message";
+		log(name, msg);
+		if(errno == EACCES)
+		{
+			msg = "please run program with elevated permissions.";
+			log(msg);
+			exit(0);
+		}
+	}
+	else
+		msg = "Greeted.";
+	log(name, msg);
 }
 
-void* Customer::threadFun(void * landllord)
-{
-	Customer* c = new Customer();
-	//((Landlord*)landllord)->registerAssistent(c);
-	c->start();
-	delete c;
-	return NULL;
-}
-
-void Customer::start()
+void Customer::run()
 {
 	ostringstream temp;
 	temp << "Entered the bar. TYPE: " << typeAsString(orderType) << "  DRINKS: " << drinksLeft << "  TABLE: " << favTableIndex;
 	string msg = temp.str();
 	log(name, msg);
+	greetLandlord(false);
 
+	//chillAtPub();
+
+	usleep(1000000);
+	greetLandlord(true);
+}
+
+void Customer::chillAtPub()
+{
+	string msg;
+	ostringstream temp;
 	while(drinksLeft > 0)
 	{
 		orderDrink();
@@ -75,19 +92,7 @@ void Customer::start()
 			msg = temp.str();
 			log(name, msg);
 		}
-
-
 //		usleep(TIME_TO_DRINK * 1000);
-	}
-
-
-	//((Landlord*)landllord)->sayGoodBye(this);
-	{
-		ostringstream temp;
-		temp.clear();
-		temp <<"leaving...";
-		msg = temp.str();
-		log(name, msg);
 	}
 }
 
@@ -100,12 +105,7 @@ OrderType Customer::chooseDrink()
 	else if (RATIO_BEER * 100 <= num && num < (RATIO_CAPPUCCINO + RATIO_BEER) * 100)
 		return CAPPUCCINO;
 	//we know that the remaining proportion is due to RATIO_HOT_CHOCOLATE from initial assert()
-	//else if (num >= (RATIO_CAPPUCCINO + RATIO_BEER) * 100)
-	//	return HOT_CHOCOLATE;
-	//otherwise IDE said: "control reaches end of non-void function" [without return]
-	else
-		return HOT_CHOCOLATE;
-	return BEER;
+	return HOT_CHOCOLATE;
 }
 
 int Customer::chooseMaxDrinks()
@@ -117,7 +117,6 @@ int Customer::chooseFavTable()
 {
 	return getRand() % NUM_TABLES;
 }
-
 void Customer::orderDrink()
 {
 
@@ -174,4 +173,14 @@ void Customer::drink()
 void Customer::lastOrder()
 {
 	pthread_cond_signal(&condition);
+}
+
+
+void* Customer::run_thread(void *dptr)
+{
+	Cust_Thread_Args *cptr = (Cust_Thread_Args *) dptr;
+	Customer *cust = new Customer(cptr->cust_id, cptr->cust_msg_q_id, cptr->drink_q_id, cptr->greeting_q_id);
+	cust->run();
+	delete cust;
+	return 0;
 }

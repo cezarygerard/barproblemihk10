@@ -7,8 +7,6 @@
 
 #include "Assistant.h"
 #include "Common.h"
-#include <iostream>
-#include <sstream>
 #include "Table.h"
 
 
