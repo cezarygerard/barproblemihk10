@@ -86,6 +86,21 @@ void init()
 	{
 		str << "failed to create drink_q errno:" << errno;
 	}
+	else
+	{
+		str << "created drink_q: " << drink_q_id;
+	}
+
+	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
+	if(greeting_q_id == -1)
+	{
+		str << "failed to create greet_q errno:" << errno;
+	}
+	else
+	{
+		str << "created greet_q: " << greeting_q_id;
+	}
+	msgctl(greeting_q_id, IPC_RMID, (struct msqid_ds *) 0);
 	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
 	if(greeting_q_id == -1)
 	{
@@ -103,7 +118,12 @@ void init()
 
 	llta.greeting_q_id = greeting_q_id;
 	llta.drink_q_id = drink_q_id;
+	str << "init-struct: gqi: " << llta.greeting_q_id << "  dqi: " << llta.drink_q_id;
+	temp = str.str();
+	log(temp);
+	str.str("");
 	pthread_create(&landlordThread, NULL, Landlord::run_thread, &llta);
+	usleep(500000);	//give the landlord time to initialize
 	//pthread_t assistantThread;
 
 	//set up the resources, Barmaid, Assistant, Landlord
