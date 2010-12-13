@@ -12,6 +12,11 @@ Landlord::Landlord(int gqi, int dqi) {
 	greeting_q_id = gqi;
 	drink_q_id = dqi;
 
+	ostringstream str;
+	string temp;
+	str << "LLcons: gqi: " << greeting_q_id << "  dqi: " << drink_q_id;
+	temp = str.str();
+	log(temp);
 }
 
 Landlord::~Landlord() {
