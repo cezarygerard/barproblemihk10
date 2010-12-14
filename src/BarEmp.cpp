@@ -11,7 +11,7 @@
 void BarEmp::bartend()
 {
 	ostringstream temp;
-	string msg;
+	//string msg;
 	Drink_Msg_Args msg_buf;
 
 	int len = msgrcv(drink_q_id, (void*) &msg_buf, sizeof(Drink_Msg_Args), 0, 0);
@@ -19,8 +19,9 @@ void BarEmp::bartend()
 	{
 		temp.str("");
 		temp << "error bartending - " << errno << "  q_id: " << drink_q_id;
-		msg = temp.str();
-		log(name, msg);
+		//msg = temp.str();
+		log(name, temp.str());
+		//log(name, msg);
 		usleep(250000);
 	}
 
@@ -65,9 +66,9 @@ void BarEmp::bartend()
 
 	temp.str("");
 	temp << "Gives " << cust->getName() << " a " << typeAsString(type);
-	msg = temp.str();
-	log(name, msg);
-
+	//msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 	//tell cust their drink is ready
 	cust->receiveDrink();
 }

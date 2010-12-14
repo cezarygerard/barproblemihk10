@@ -27,9 +27,9 @@ void Landlord::run()
 {
 	ostringstream temp;
 	temp << "Landlord got to work.";
-	string msg = temp.str();
-	log(name, msg);
-
+	//string msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 	while (!bLastCall)
 	{
 		greet();
@@ -48,7 +48,7 @@ void Landlord::run()
 	//Assistant and Barmaid should terminate when bClose is true
 	usleep(500000);
 
-	msg = "Clocking out.";
+	string msg = "Clocking out.";
 	log(name, msg);
 	pthread_exit(NULL);
 }
@@ -56,7 +56,7 @@ void Landlord::run()
 void Landlord::greet()
 {
 	ostringstream temp;
-	string msg;
+//	string msg;
 	Greeting_Msg_Args msg_buf;
 
 	int len = msgrcv(greeting_q_id, (void*) &msg_buf, sizeof(Greeting_Msg_Args), 0, 0);
@@ -64,8 +64,9 @@ void Landlord::greet()
 	{
 		temp.str("");
 		temp << "error greeting - " << errno << "  q_id: " << greeting_q_id;
-		msg = temp.str();
-		log(name, msg);
+		//msg = temp.str();
+		//log(name, msg);
+		log(name, temp.str());
 		usleep(250000);
 	}
 	temp.str("");
@@ -81,16 +82,17 @@ void Landlord::greet()
 		//people_in_the_bar.remove(msg_buf.q_id);
 		people_in_bar.erase(msg_buf.person_id);
 	}
-	msg = temp.str();
-	log(name, msg);
-
+	//msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 	temp.str("");
 	temp << "cust_id of people in the bar:";
 	//for (list<int>::iterator it=people_in_the_bar.begin() ; it != people_in_the_bar.end(); it++ )
 	for (map<int, Person*>::iterator it=people_in_bar.begin() ; it != people_in_bar.end(); it++ )
 		temp << " " << (*it).first;
-	msg = temp.str();
-	log(name, msg);
+	//msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 }
 
 void Landlord::checkLastCall()

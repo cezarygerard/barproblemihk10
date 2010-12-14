@@ -43,7 +43,7 @@ int getRand()
 
 }
 
-void log(string &name,string &message)
+void log(string name,string message)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
@@ -52,7 +52,7 @@ void log(string &name,string &message)
 	pthread_mutex_unlock(&output_mtx);
 }
 
-void log(string &message)
+void log(string message)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);

@@ -69,8 +69,9 @@ std::pair<int,int> Assistant::collectDishes()
 		}
 		ostringstream temp;
 		temp << "table: "<< i << " dishes collected: " << this_tbl_units;
-		string msg = temp.str();
-		log(name, msg);
+		//string msg = temp.str();
+		//log(name, msg);
+		log(name, temp.str());
 //		assert(this_tbl_units <= NUM_TABLE_UNITS); it is possible, dishes are picked up one by one, it is possible to collect > 10
 
 	}
@@ -105,8 +106,9 @@ void Assistant::doCleanupRound()
 			<< "dishes cleaned: " <<cleaned
 			<< " glasses replaced: " << replaced.first
 			<< " cups replaced: " << replaced.second;
-	string msg = temp.str();
-	log(name, msg);
+	//string msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 }
 
 //void* Assistant:: run(Landlord* landllord)
@@ -129,9 +131,9 @@ void Assistant::run()
 {
 	ostringstream temp;
 	temp << "Assistant got to work.";
-	string msg = temp.str();
-	log(name, msg);
-
+	//string msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 	//while(!timeToFinish)
 	while(!bClose)
 	{
@@ -143,7 +145,7 @@ void Assistant::run()
 	takeBreak();
 	doCleanupRound();
 
-	msg = "Clocking out.";
+	string msg = "Clocking out.";
 	log(name, msg);
 	pthread_exit(NULL);
 }

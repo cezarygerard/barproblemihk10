@@ -75,8 +75,8 @@ extern Table tables[NUM_TABLES];
 extern bool bLastCall, bClose;
 
 //prints formatted text to console
-void log(string &name, string &message);
-void log(string &message);
+void log(string name, string message);
+void log(string message);
 void* run_clock(void *dptr);
 
 int getRand();
