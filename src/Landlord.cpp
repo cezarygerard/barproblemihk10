@@ -30,12 +30,27 @@ void Landlord::run()
 	string msg = temp.str();
 	log(name, msg);
 
-	while(1)
+	while (!bLastCall)
 	{
 		greet();
 		checkLastCall();
 		bartend();
 	}
+
+	while (!bClose)
+	{
+		greet();
+		checkClose();
+		bartend();
+	}
+
+	//wait for employees to leave
+	//Assistant and Barmaid should terminate when bClose is true
+	usleep(500000);
+
+	msg = "Clocking out.";
+	log(name, msg);
+	pthread_exit(NULL);
 }
 
 void Landlord::greet()
@@ -80,7 +95,17 @@ void Landlord::greet()
 
 void Landlord::checkLastCall()
 {
+	if (bLastCall)
+	{
+		for (map<int, Person*>::iterator it=people_in_bar.begin() ; it != people_in_bar.end(); it++ )
+			((Customer*)((*it).second))->lastOrder();
+	}
+}
 
+void Landlord::checkClose()
+{
+	if ((int)people_in_bar.size() == 0)
+			bClose = true;
 }
 
 

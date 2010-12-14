@@ -17,6 +17,7 @@ private:
 	std::map<int, Person*> people_in_bar;
 	void greet();
 	void checkLastCall();
+	void checkClose();
 public:
 	Landlord(int gqi, int dqi);
 	virtual ~Landlord();
