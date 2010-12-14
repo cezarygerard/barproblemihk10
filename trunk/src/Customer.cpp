@@ -46,6 +46,7 @@ void Customer::greetLandlord(bool leaving){
 	else
 		msg = "Waiting for greeting from landlord...";
 	log(name, msg);
+	//log(name, temp.str());
 	int val = msgsnd(greeting_q_id, (void*)&tosend, sizeof(Landlord::Greeting_Msg_Args), 0);
 	if(val == -1) {
 		msg = "ERROR: Failed to send greeting message";
@@ -68,8 +69,9 @@ void Customer::run()
 {
 	ostringstream temp;
 	temp << "Entered the bar. TYPE: " << typeAsString(orderType) << "  DRINKS: " << drinksLeft << "  TABLE: " << favTableIndex;
-	string msg = temp.str();
-	log(name, msg);
+	//string msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 	greetLandlord(false);
 
 	chillAtPub();
@@ -125,8 +127,9 @@ void Customer::orderDrink()
 	ostringstream temp;
 	string msg;
 	temp << "Waiting for a " << typeAsString(orderType) << "...";
-	msg = temp.str();
-	log(name, msg);
+	//msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 	int val = msgsnd(drink_q_id, (void*)&tosend, sizeof(BarEmp::Drink_Msg_Args), 0);
 	if(val == -1) {
 		msg = "ERROR: Failed to send drink request";
@@ -160,7 +163,7 @@ void Customer::receiveDrink()
 
 void Customer::drink()
 {
-	string msg;
+	//string msg;
 	ostringstream temp;
 	gettimeofday(&tp, NULL);
 	ts.tv_sec  = tp.tv_sec;
@@ -192,9 +195,9 @@ void Customer::drink()
 
 	drinksLeft--;
 	temp <<"Finished! Drinks left: " << drinksLeft;
-	msg = temp.str();
-	log(name, msg);
-
+	//msg = temp.str();
+	//log(name, msg);
+	log(name, temp.str());
 	DishType dt;
 	switch (orderType) {
 		case BEER:
