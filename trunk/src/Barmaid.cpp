@@ -30,8 +30,12 @@ void Barmaid::run()
 	string msg = temp.str();
 	log(name, msg);
 
-	while(1)
+	while(!bClose)
 	{
 		bartend();
 	}
+
+	msg = "Clocking out.";
+	log(name, msg);
+	pthread_exit(NULL);
 }

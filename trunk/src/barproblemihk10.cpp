@@ -20,13 +20,15 @@ pthread_mutex_t output_mtx = PTHREAD_MUTEX_INITIALIZER;
 pthread_t landlordThread;
 pthread_t assistantThread;
 pthread_t barmainThread;
+pthread_t clockThread;
 
-int msqid;
+//int msqid;
 pthread_mutex_t beerTap, /*cupboard,*/ milk, coffee, chocolate;
 sem_t glasses, cups;
 Table tables[NUM_TABLES];
 int drink_q_id = 0;
 int greeting_q_id = 0;
+bool bLastCall, bClose;
 
 //used in getRand() which call rand_r(*uint);
 volatile unsigned int seed =0;
@@ -73,6 +75,17 @@ const char* typeAsString(OrderType type)
 	}
 }
 
+void* run_clock(void *dptr)
+{
+	usleep(TIME_UNTIL_LASTCALL * 1000);
+	bLastCall = true;
+
+	string temp = "\n------------------------------------------  LAST CALL! ------------------------------------------\n";
+	log(temp);
+
+	return 0;
+}
+
 void init()
 {
 	pthread_mutex_init(&beerTap, NULL);
@@ -81,6 +94,8 @@ void init()
 	pthread_mutex_init(&chocolate, NULL);
 	sem_init(&glasses, 0 , NUM_GLASSES);
 	sem_init(&cups, 0 , NUM_CUPS);
+	bLastCall = false;
+	bClose = false;
 
 	ostringstream str;
 	string temp = "Bar simulation started...";
@@ -134,9 +149,7 @@ void init()
 
 	usleep(500000);	//give the threads time to initialize
 
-
-	//set up the resources, Barmaid, Assistant, Landlord
-	//add Barmaid and Assistant to Landlord's list (he must leave bar after everyone leaves and announce last call)
+	pthread_create(&clockThread, NULL, run_clock, NULL);
 }
 
 int main (int argc, char *argv[])
@@ -157,14 +170,15 @@ int main (int argc, char *argv[])
 	init();
 
 
-	timeval t_now, t_finish;
-	gettimeofday(&t_now, NULL);
+	//timeval t_now, t_finish;
+	//gettimeofday(&t_now, NULL);
 	srand(time(NULL));
 	//t_finish.tv_sec = t_now.tv_sec + ( TIME_UNTIL_CLOSE + TIME_UNTIL_LASTCALL) /1000;
-	t_finish.tv_sec = t_now.tv_sec + (TIME_UNTIL_LASTCALL) /1000;
+	//t_finish.tv_sec = t_now.tv_sec + (TIME_UNTIL_LASTCALL) /1000;
 	int i = 1;
-	while(t_finish.tv_sec > t_now.tv_sec)
+	//while(t_finish.tv_sec > t_now.tv_sec)
 	//for (int i=0; i < 2; i++)
+	while(!bLastCall)
 	{
 		Customer::Cust_Thread_Args cta;
 		pthread_t ct;
@@ -174,7 +188,7 @@ int main (int argc, char *argv[])
 		//cta.cust_msg_q_id = msgget(CUSTOMER_START_Q+i, IPC_CREAT);
 		pthread_create(&ct, NULL, Customer::run_thread, &cta);
 		usleep(TIME_INTERVAL_CUST * 1000);
-		gettimeofday(&t_now, NULL);
+		//gettimeofday(&t_now, NULL);
 		i++;
 	}
 

@@ -74,6 +74,8 @@ void Customer::run()
 
 	chillAtPub();
 
+	pthread_exit(NULL);
+
 	//usleep(1000000);
 	//greetLandlord(true);
 }
@@ -213,12 +215,13 @@ void Customer::drink()
 
 void Customer::lastOrder()
 {
-	pthread_cond_signal(&lc_condition);
 	//drinksLeft is going to get decremeted after he finishes, so set at 2.
 	if (orderType == BEER && drinksLeft > 2)
 		drinksLeft = 2;
 	else
 		drinksLeft = 1;
+
+	pthread_cond_signal(&lc_condition);
 }
 
 
