@@ -7,10 +7,10 @@
 //============================================================================
 
 #include "Common.h"
-#include "Customer.h"
+#include "Landlord.h";
+#include "Table.h";
+#include "Barmaid.h"
 #include "Assistant.h"
-#include "Table.h"
-#include "Landlord.h"
 
 //#define NUM_THREADS     5
 
@@ -18,10 +18,11 @@ using namespace std;
 
 pthread_mutex_t output_mtx = PTHREAD_MUTEX_INITIALIZER;
 pthread_t landlordThread;
-
+pthread_t assistantThread;
+pthread_t barmainThread;
 
 int msqid;
-pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
+pthread_mutex_t beerTap, /*cupboard,*/ milk, coffee, chocolate;
 sem_t glasses, cups;
 Table tables[NUM_TABLES];
 int drink_q_id = 0;
@@ -74,57 +75,65 @@ const char* typeAsString(OrderType type)
 
 void init()
 {
-	sem_t glasses, cups;
+	pthread_mutex_init(&beerTap, NULL);
+	pthread_mutex_init(&milk, NULL);
+	pthread_mutex_init(&coffee, NULL);
+	pthread_mutex_init(&chocolate, NULL);
 	sem_init(&glasses, 0 , NUM_GLASSES);
 	sem_init(&cups, 0 , NUM_CUPS);
 
 	ostringstream str;
-	string temp = "Bar simulation started...\n";
+	string temp = "Bar simulation started...";
 	log(temp);
+
+	drink_q_id = msgget(DRINK_Q, 0666|IPC_CREAT|IPC_PRIVATE);
+	msgctl(drink_q_id, IPC_RMID, (struct msqid_ds *) 0);
 	drink_q_id = msgget(DRINK_Q, 0666|IPC_CREAT|IPC_PRIVATE);
 	if(drink_q_id == -1)
 	{
-		str << "failed to create drink_q errno:" << errno;
+		str << "ERROR: Failed to create drink_q errno:" << errno;
 	}
 	else
 	{
-		str << "created drink_q: " << drink_q_id;
+		str << "Created drink_q: " << drink_q_id;
 	}
 
+	//We need to create the greeing queue and then destroy it to remove leftover junk
 	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
-	if(greeting_q_id == -1)
-	{
-		str << "failed to create greet_q errno:" << errno;
-	}
-	else
-	{
-		str << "created greet_q: " << greeting_q_id;
-	}
+//	if(greeting_q_id == -1)
+//	{
+//		str << "\n                    ERROR: Failed to create greet_q errno:" << errno;
+//	}
+//	else
+//	{
+//		str << "\n                    Created greet_q: " << greeting_q_id;
+//	}
+
 	msgctl(greeting_q_id, IPC_RMID, (struct msqid_ds *) 0);
 	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
 	if(greeting_q_id == -1)
 	{
-		str << "failed to create greet_q errno:" << errno;
+		str << "\n                    ERROR: Failed to create greet_q errno:" << errno;
 	}
 	else
 	{
-		str << "created greet_q: " << greeting_q_id;
+		str << "\n                    Created greet_q: " << greeting_q_id;
 	}
 	temp = str.str();
 	log(temp);
 	str.str("");
 
 	Landlord::Landlord_Thread_Args llta;
-
 	llta.greeting_q_id = greeting_q_id;
 	llta.drink_q_id = drink_q_id;
-	str << "init-struct: gqi: " << llta.greeting_q_id << "  dqi: " << llta.drink_q_id;
-	temp = str.str();
-	log(temp);
-	str.str("");
 	pthread_create(&landlordThread, NULL, Landlord::run_thread, &llta);
-	usleep(500000);	//give the landlord time to initialize
-	//pthread_t assistantThread;
+	Barmaid::Barmaid_Thread_Args bta;
+	bta.drink_q_id = drink_q_id;
+	pthread_create(&assistantThread, NULL, Barmaid::run_thread, &bta);
+	pthread_create(&assistantThread, NULL, Assistant::run_thread, NULL);
+
+	usleep(500000);	//give the threads time to initialize
+
 
 	//set up the resources, Barmaid, Assistant, Landlord
 	//add Barmaid and Assistant to Landlord's list (he must leave bar after everyone leaves and announce last call)
@@ -151,19 +160,22 @@ int main (int argc, char *argv[])
 	timeval t_now, t_finish;
 	gettimeofday(&t_now, NULL);
 	srand(time(NULL));
-	t_finish.tv_sec = t_now.tv_sec + ( TIME_UNTIL_CLOSE + TIME_UNTIL_LASTCALL) /1000 ;
-	//while(t_finish.tv_sec > t_now.tv_sec)
-	for (int i=0; i < 2; i++)
+	//t_finish.tv_sec = t_now.tv_sec + ( TIME_UNTIL_CLOSE + TIME_UNTIL_LASTCALL) /1000;
+	t_finish.tv_sec = t_now.tv_sec + (TIME_UNTIL_LASTCALL) /1000;
+	int i = 1;
+	while(t_finish.tv_sec > t_now.tv_sec)
+	//for (int i=0; i < 2; i++)
 	{
 		Customer::Cust_Thread_Args cta;
 		pthread_t ct;
 		cta.cust_id = i;
 		cta.drink_q_id = drink_q_id;
 		cta.greeting_q_id = greeting_q_id;
-		cta.cust_msg_q_id = msgget(CUSTOMER_START_Q+i, IPC_CREAT);
+		//cta.cust_msg_q_id = msgget(CUSTOMER_START_Q+i, IPC_CREAT);
 		pthread_create(&ct, NULL, Customer::run_thread, &cta);
 		usleep(TIME_INTERVAL_CUST * 1000);
 		gettimeofday(&t_now, NULL);
+		i++;
 	}
 
 	pthread_join(landlordThread, NULL);

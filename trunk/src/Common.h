@@ -27,11 +27,10 @@ using namespace std;
 
 class Table;
 
-
 //msg queue declarations:
 #define DRINK_Q 0x4
 #define GREET_Q 0x5
-#define CUSTOMER_START_Q 0x20
+//#define CUSTOMER_START_Q 0x20
 
 
 //constants:
@@ -47,7 +46,7 @@ class Table;
 #define	RATIO_HOT_CHOCOLATE		0.20
 
 #define	TIME_UNTIL_LASTCALL		25000	//milliseconds
-#define	TIME_UNTIL_CLOSE		5000	//length otf last call in milliseconds
+//#define	TIME_UNTIL_CLOSE		5000	//length otf last call in milliseconds
 #define TIME_INTERVAL_CUST		200		//how often a customer enters the bar
 #define TIME_TO_DRINK			50		//how long it takes for a customer to consume any drink
 
@@ -61,7 +60,7 @@ class Table;
 #define TIME_COLLECT_DISH		1
 #define	TIME_WASH_DISH			10
 #define TIME_REPLACE_DISH		2
-#define TIME_REST				100
+#define TIME_REST				200
 
 
 enum OrderType {BEER, CAPPUCCINO, HOT_CHOCOLATE };

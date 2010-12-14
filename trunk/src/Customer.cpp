@@ -6,20 +6,25 @@
  */
 
 #include "Customer.h"
+#include "Landlord.h"
+#include "Table.h"
 
-Customer::Customer(int cid, int cmqi, int dqi, int gqi) {
+Customer::Customer(int cid, /*int cmqi,*/ int dqi, int gqi) {
 	ostringstream temp;
 	temp << "Customer_" << cid;
 	name = temp.str();
 
 	pthread_mutex_init(&mutex, NULL);
-	pthread_cond_init(&condition, NULL);
+	//last call condition
+	pthread_cond_init(&lc_condition, NULL);
+	//drink order is ready condition
+	pthread_cond_init(&rdy_condition, NULL);
 
 	orderType = chooseDrink();
 	drinksLeft = chooseMaxDrinks();
 	favTableIndex = chooseFavTable();
 
-	my_q_id = cmqi;
+	//my_q_id = cmqi;
 	my_id = cid;
 	drink_q_id = dqi;
 	greeting_q_id = gqi;
@@ -31,29 +36,31 @@ Customer::~Customer() {
 
 void Customer::greetLandlord(bool leaving){
 	Landlord::Greeting_Msg_Args tosend;
-	tosend.cust_id = my_id;
-	tosend.q_id = my_q_id;
 	tosend.leaving = leaving;
+	tosend.person_id = my_id;
+	tosend.person_ptr = this;
 
 	string msg = "";
 	if(leaving)
-		msg = "waiting to say goodbye to landlord";
+		msg = "Waiting to say goodbye to landlord...";
 	else
-		msg = "Waiting for greeting from landlord.";
+		msg = "Waiting for greeting from landlord...";
 	log(name, msg);
 	int val = msgsnd(greeting_q_id, (void*)&tosend, sizeof(Landlord::Greeting_Msg_Args), 0);
 	if(val == -1) {
-		msg = "failed to send greeting message";
+		msg = "ERROR: Failed to send greeting message";
 		log(name, msg);
 		if(errno == EACCES)
 		{
-			msg = "please run program with elevated permissions.";
+			msg = "ERROR: Please run program with elevated permissions.";
 			log(msg);
 			exit(0);
 		}
 	}
+	else if (!leaving)
+		msg = "Hello!";
 	else
-		msg = "Greeted.";
+		msg = "See ya.";
 	log(name, msg);
 }
 
@@ -65,35 +72,23 @@ void Customer::run()
 	log(name, msg);
 	greetLandlord(false);
 
-	//chillAtPub();
+	chillAtPub();
 
-	usleep(1000000);
-	greetLandlord(true);
+	//usleep(1000000);
+	//greetLandlord(true);
 }
 
 void Customer::chillAtPub()
 {
-	string msg;
-	ostringstream temp;
 	while(drinksLeft > 0)
 	{
 		orderDrink();
-		{
-			ostringstream temp;
-			temp <<"drink ordered";
-			msg = temp.str();
-			log(name, msg);
-		}
 		drink();
-		drinksLeft--;
-		{
-			ostringstream temp;
-			temp <<"drunk, drinks left: " << drinksLeft;
-			msg = temp.str();
-			log(name, msg);
-		}
 //		usleep(TIME_TO_DRINK * 1000);
 	}
+
+	//drunk. let's leave
+	greetLandlord(true);
 }
 
 OrderType Customer::chooseDrink()
@@ -117,13 +112,54 @@ int Customer::chooseFavTable()
 {
 	return getRand() % NUM_TABLES;
 }
+
 void Customer::orderDrink()
 {
+	BarEmp::Drink_Msg_Args tosend;
+	tosend.cust_id = my_id;
+	tosend.order_type = orderType;
+	tosend.cust_ptr = this;
 
+	ostringstream temp;
+	string msg;
+	temp << "Waiting for a " << typeAsString(orderType) << "...";
+	msg = temp.str();
+	log(name, msg);
+	int val = msgsnd(drink_q_id, (void*)&tosend, sizeof(BarEmp::Drink_Msg_Args), 0);
+	if(val == -1) {
+		msg = "ERROR: Failed to send drink request";
+		log(name, msg);
+		if(errno == EACCES)
+		{
+			msg = "ERROR: Please run program with elevated permissions.";
+			log(msg);
+			exit(0);
+		}
+	}
+	else
+	{
+		pthread_mutex_lock( &mutex );
+		pthread_cond_wait(&rdy_condition, &mutex);
+		pthread_mutex_unlock( &mutex );
+
+		temp.str("");
+		temp << "Received " << typeAsString(orderType);
+		msg = temp.str();
+		log(name, msg);
+	}
+}
+
+void Customer::receiveDrink()
+{
+	pthread_mutex_lock(&mutex);
+	pthread_cond_signal(&rdy_condition);
+	pthread_mutex_unlock( &mutex );
 }
 
 void Customer::drink()
 {
+	string msg;
+	ostringstream temp;
 	gettimeofday(&tp, NULL);
 	ts.tv_sec  = tp.tv_sec;
 	ts.tv_nsec = tp.tv_usec * 1000;
@@ -144,13 +180,18 @@ void Customer::drink()
 		cout<<(TIME_REST * msToNs + ts.tv_nsec) % nsToS<<endl;
 		cout<<(TIME_REST * msToNs + ts.tv_nsec) / nsToS<<endl;
 		*/
-		pthread_cond_timedwait(&condition, &mutex, &ts);
+		pthread_cond_timedwait(&lc_condition, &mutex, &ts);
 		pthread_mutex_unlock( &mutex );
 	}
 	else
 	{
 		usleep(TIME_TO_DRINK * 1000);
 	}
+
+	drinksLeft--;
+	temp <<"Finished! Drinks left: " << drinksLeft;
+	msg = temp.str();
+	log(name, msg);
 
 	DishType dt;
 	switch (orderType) {
@@ -172,14 +213,19 @@ void Customer::drink()
 
 void Customer::lastOrder()
 {
-	pthread_cond_signal(&condition);
+	pthread_cond_signal(&lc_condition);
+	//drinksLeft is going to get decremeted after he finishes, so set at 2.
+	if (orderType == BEER && drinksLeft > 2)
+		drinksLeft = 2;
+	else
+		drinksLeft = 1;
 }
 
 
 void* Customer::run_thread(void *dptr)
 {
 	Cust_Thread_Args *cptr = (Cust_Thread_Args *) dptr;
-	Customer *cust = new Customer(cptr->cust_id, cptr->cust_msg_q_id, cptr->drink_q_id, cptr->greeting_q_id);
+	Customer *cust = new Customer(cptr->cust_id, /*cptr->cust_msg_q_id, */cptr->drink_q_id, cptr->greeting_q_id);
 	cust->run();
 	delete cust;
 	return 0;
