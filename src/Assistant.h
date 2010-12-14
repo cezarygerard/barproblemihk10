@@ -20,7 +20,7 @@ class Assistant: public Person{
 	///mutex and conditional variable used to force thread to timeout on condition_cond using pthread_cond_timedwait
 	//pthread_mutex_t count_mutex ;
 	//pthread_cond_t  condition_cond ;
-
+	//sem_t final_run_sem;
 	pthread_t runThread;
 	bool timeToFinish;
 	void run();

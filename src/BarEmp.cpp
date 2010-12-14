@@ -13,10 +13,15 @@ void BarEmp::bartend()
 	ostringstream temp;
 	//string msg;
 	Drink_Msg_Args msg_buf;
-
-	int len = msgrcv(drink_q_id, (void*) &msg_buf, sizeof(Drink_Msg_Args), 0, 0);
+	int len = msgrcv(drink_q_id, (void*) &msg_buf, sizeof(Drink_Msg_Args), 0, IPC_NOWAIT);
 	if(len == -1)
 	{
+		if(errno == ENOMSG)
+		{
+			usleep(1000);
+			return;
+		}
+
 		temp.str("");
 		temp << "error bartending - " << errno << "  q_id: " << drink_q_id;
 		//msg = temp.str();

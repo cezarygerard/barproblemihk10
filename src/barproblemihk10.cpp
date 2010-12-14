@@ -25,10 +25,12 @@ pthread_t clockThread;
 //int msqid;
 pthread_mutex_t beerTap, /*cupboard,*/ milk, coffee, chocolate;
 sem_t glasses, cups;
+sem_t assistantFinalRun, landLordExit;
+
 Table tables[NUM_TABLES];
 int drink_q_id = 0;
 int greeting_q_id = 0;
-bool bLastCall, bClose;
+volatile bool bLastCall, bClose;
 
 //used in getRand() which call rand_r(*uint);
 volatile unsigned int seed =0;
@@ -81,8 +83,8 @@ void* run_clock(void *dptr)
 	bLastCall = true;
 
 	string temp = "\n------------------------------------------  LAST CALL! ------------------------------------------\n";
-	log(temp);
-
+	log(temp);;
+	//usleep(TIME_UNTIL_CLOSE * 1000);
 	return 0;
 }
 
@@ -94,6 +96,9 @@ void init()
 	pthread_mutex_init(&chocolate, NULL);
 	sem_init(&glasses, 0 , NUM_GLASSES);
 	sem_init(&cups, 0 , NUM_CUPS);
+	sem_init(&assistantFinalRun,0,0);
+	sem_init(&landLordExit,0,0);
+
 	bLastCall = false;
 	bClose = false;
 
@@ -125,7 +130,7 @@ void init()
 //	}
 
 	msgctl(greeting_q_id, IPC_RMID, (struct msqid_ds *) 0);
-	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
+	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE) ;
 	if(greeting_q_id == -1)
 	{
 		str << "\n                    ERROR: Failed to create greet_q errno:" << errno;
@@ -177,7 +182,7 @@ int main (int argc, char *argv[])
 	//t_finish.tv_sec = t_now.tv_sec + (TIME_UNTIL_LASTCALL) /1000;
 	int i = 1;
 	//while(t_finish.tv_sec > t_now.tv_sec)
-	//for (int i=0; i < 2; i++)
+	//for (int i=0; i < 2; i++)msgrcv
 	while(!bLastCall)
 	{
 		Customer::Cust_Thread_Args cta;
