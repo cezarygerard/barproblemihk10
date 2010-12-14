@@ -7,11 +7,31 @@
 
 #include "Barmaid.h"
 
-Barmaid::Barmaid() {
-	// TODO Auto-generated constructor stub
-
+Barmaid::Barmaid(int dqi) {
+	name = "Barmaid";
+	drink_q_id = dqi;
 }
 
 Barmaid::~Barmaid() {
-	// TODO Auto-generated destructor stub
+}
+
+void* Barmaid::run_thread(void *dptr)
+{
+	Barmaid_Thread_Args *cptr = (Barmaid_Thread_Args *) dptr;
+	Barmaid * bm = new Barmaid(cptr->drink_q_id);
+	bm->run();
+	return 0;
+}
+
+void Barmaid::run()
+{
+	ostringstream temp;
+	temp << "Barmaid got to work.";
+	string msg = temp.str();
+	log(name, msg);
+
+	while(1)
+	{
+		bartend();
+	}
 }

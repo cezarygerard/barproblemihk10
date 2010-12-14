@@ -49,7 +49,7 @@ void Table::putDish(DishType dt)
 		cups_++;
 		break;
 	}
-	assert(glasses_+ cups_ == val&& val < NUM_TABLE_UNITS);
+	//assert(glasses_+ cups_ == val&& val < NUM_TABLE_UNITS);
 	pthread_mutex_unlock( &dishMutex_ );
 }
 

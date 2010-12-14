@@ -9,7 +9,8 @@
 #define ASSISTANT_H_
 
 #include "Person.h"
-#include "Landlord.h"
+#include "Table.h"
+
 class Assistant: public Person{
 	pair<int,int> collectDishes();
 	int cleanDishes(int dishes);
@@ -21,40 +22,15 @@ class Assistant: public Person{
 	//pthread_cond_t  condition_cond ;
 
 	pthread_t runThread;
-
 	bool timeToFinish;
-
-	///time structures:
-	//timeval tp;
-	//timespec ts;
-
-	///useful with converting time structures:
-	//static const long long msToNs = 1000 * 1000;
-
-	///useful with converting time structures:
-	//static const long long nsToS= 1000 * 1000 * 1000;
-
-
-	void doStuff();
-
-	///final cleaning after all customers have left
-	///should be called by landlord
+	void run();
 	void doFinalRun();
-
-	///One cleaning go
 	void doCleanupRound();
-
-	static void* threadFun(void *);
 
 public:
 	Assistant();
-
-	///infinite loop, should be thread's method
-	//static void* run(Landlord* ll);
-	//static void* run(void* landlord);
-	static void run(Landlord* ll);
-
 	virtual ~Assistant();
+	static void* run_thread(void *);
 };
 
 #endif /* ASSISTANT_H_ */
