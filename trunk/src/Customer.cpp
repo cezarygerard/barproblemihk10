@@ -168,7 +168,7 @@ void Customer::drink()
 	gettimeofday(&tp, NULL);
 	ts.tv_sec  = tp.tv_sec;
 	ts.tv_nsec = tp.tv_usec * 1000;
-
+;
 	if (orderType == BEER)
 	{
 		pthread_mutex_lock( &mutex );
@@ -186,14 +186,18 @@ void Customer::drink()
 		cout<<(TIME_REST * msToNs + ts.tv_nsec) / nsToS<<endl;
 		*/
 		pthread_cond_timedwait(&lc_condition, &mutex, &ts);
+		drinksLeft--;
 		pthread_mutex_unlock( &mutex );
 	}
 	else
 	{
+		pthread_mutex_lock( &mutex );
 		usleep(TIME_TO_DRINK * 1000);
+		drinksLeft--;
+		pthread_mutex_unlock( &mutex );
 	}
 
-	drinksLeft--;
+
 	temp <<"Finished! Drinks left: " << drinksLeft;
 	//msg = temp.str();
 	//log(name, msg);
@@ -218,13 +222,14 @@ void Customer::drink()
 
 void Customer::lastOrder()
 {
+	pthread_mutex_lock( &mutex );
 	//drinksLeft is going to get decremeted after he finishes, so set at 2.
 	if (orderType == BEER && drinksLeft > 2)
 		drinksLeft = 2;
 	else
 		drinksLeft = 1;
-
 	pthread_cond_signal(&lc_condition);
+	pthread_mutex_unlock( &mutex );
 }
 
 

@@ -6,12 +6,14 @@
  */
 
 #include "Assistant.h"
+#include <pthread.h>
 
 Assistant::Assistant(){
 	name = "Assistant";
 	timeToFinish = false;
 //	pthread_mutex_init(&count_mutex, NULL);
 //	pthread_cond_init(&condition_cond, NULL);
+	//sem_init(&final_run_sem, 0 , 0);
 }
 
 Assistant::~Assistant() {
@@ -140,11 +142,11 @@ void Assistant::run()
 		takeBreak();
 		doCleanupRound();
 	}
-
+	sem_wait(&assistantFinalRun);
 	//last time!
-	takeBreak();
+	//takeBreak();
 	doCleanupRound();
-
+	sem_post(&landLordExit);
 	string msg = "Clocking out.";
 	log(name, msg);
 	pthread_exit(NULL);
@@ -153,5 +155,7 @@ void Assistant::run()
 //I do not have any better idea how to solve final run in other way than this:
 void Assistant::doFinalRun()
 {
-	timeToFinish = true;
+//	timeToFinish = true;
+//	sem_post(&final_run_sem);
 }
+

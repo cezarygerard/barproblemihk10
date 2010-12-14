@@ -33,10 +33,10 @@ void Landlord::run()
 	while (!bLastCall)
 	{
 		greet();
-		checkLastCall();
+
 		bartend();
 	}
-
+	checkLastCall();
 	while (!bClose)
 	{
 		greet();
@@ -44,9 +44,10 @@ void Landlord::run()
 		bartend();
 	}
 
+	sem_wait(&landLordExit);
 	//wait for employees to leave
 	//Assistant and Barmaid should terminate when bClose is true
-	usleep(500000);
+	//usleep(5000);
 
 	string msg = "Clocking out.";
 	log(name, msg);
@@ -58,10 +59,16 @@ void Landlord::greet()
 	ostringstream temp;
 //	string msg;
 	Greeting_Msg_Args msg_buf;
-
-	int len = msgrcv(greeting_q_id, (void*) &msg_buf, sizeof(Greeting_Msg_Args), 0, 0);
+	int len = 1;
+	while (len != 0)
+	{
+	//log(name);
+	len = msgrcv(greeting_q_id, (void*) &msg_buf, sizeof(Greeting_Msg_Args), 0,IPC_NOWAIT);
+	//log(name);
 	if(len == -1)
 	{
+		if(errno == ENOMSG )
+			return;
 		temp.str("");
 		temp << "error greeting - " << errno << "  q_id: " << greeting_q_id;
 		//msg = temp.str();
@@ -93,6 +100,8 @@ void Landlord::greet()
 	//msg = temp.str();
 	//log(name, msg);
 	log(name, temp.str());
+	}
+	int i = 5;
 }
 
 void Landlord::checkLastCall()
@@ -106,8 +115,12 @@ void Landlord::checkLastCall()
 
 void Landlord::checkClose()
 {
-	if ((int)people_in_bar.size() == 0)
-			bClose = true;
+	int i = (int)people_in_bar.size();
+	if (i == 0)
+	{
+		bClose = true;
+		sem_post(&assistantFinalRun);
+	}
 }
 
 
