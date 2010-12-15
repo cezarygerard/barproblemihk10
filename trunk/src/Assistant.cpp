@@ -6,40 +6,105 @@
  */
 
 #include "Assistant.h"
+#include "Landlord.h"
 #include <pthread.h>
 
-Assistant::Assistant(){
+Assistant::Assistant(int gqi){
 	name = "Assistant";
-	timeToFinish = false;
-//	pthread_mutex_init(&count_mutex, NULL);
-//	pthread_cond_init(&condition_cond, NULL);
-	//sem_init(&final_run_sem, 0 , 0);
+	greeting_q_id = gqi;
+	bClose = false;
 }
 
 Assistant::~Assistant() {
 
 }
 
-std::pair<int,int> Assistant::replaceDishes(pair<int,int> collectedDishes)
+void* Assistant::run_thread(void * dptr)
 {
-	for (int j = 0; j< collectedDishes.first ; j++)
-	{
-		sem_post(&glasses);
-		usleep(TIME_REPLACE_DISH *1000);
-	}
+	Assistant_Thread_Args *cptr = (Assistant_Thread_Args *) dptr;
+	Assistant* ass = new Assistant(cptr->greeting_q_id);
 
-	for (int j = 0; j< collectedDishes.second ; j++)
-	{
-		sem_post(&cups);
-		usleep(TIME_REPLACE_DISH *1000);
-	}
-
-	return collectedDishes;
+	ass->run();
+	return 0;
 }
 
-void Assistant::takeBreak()
+void Assistant::run()
 {
-	usleep(TIME_REST *1000);
+	ostringstream temp;
+	temp << "Assistant got to work.";
+	log(name, temp.str());
+	greetLandlord(false);
+
+	while(!bClose)
+	{
+		takeBreak();
+		doCleanupRound();
+	}
+
+	//final cleanup
+	doCleanupRound();
+	string msg = "Clocking out.";
+	log(name, msg);
+	greetLandlord(true);
+	pthread_exit(NULL);
+}
+
+void Assistant::greetLandlord(bool leaving){
+	Landlord::Greeting_Msg_Args tosend;
+	tosend.leaving = leaving;
+	tosend.person_id = -1;
+	tosend.person_ptr = this;
+
+	string msg = "";
+	if(leaving)
+		msg = "Waiting to say goodbye to landlord...";
+	else
+		msg = "Waiting for greeting from landlord...";
+	log(name, msg);
+
+	int val = msgsnd(greeting_q_id, (void*)&tosend, sizeof(Landlord::Greeting_Msg_Args), 0);
+	if(val == -1) {
+		msg = "ERROR: Failed to send greeting message";
+		log(name, msg);
+		if(errno == EACCES)
+		{
+			msg = "ERROR: Please run program with elevated permissions.";
+			log(msg);
+			exit(0);
+		}
+	}
+	else if (!leaving)
+		msg = "Another hard day...";
+	else
+		msg = "I'm outta here!";
+	log(name, msg);
+}
+
+void Assistant::lastOrder()
+{
+	//placeholder for virtual method
+}
+
+void Assistant::closeUp()
+{
+	bClose = true;
+}
+
+void Assistant::doCleanupRound()
+{
+	string s ="starting cleanup";
+	log(name,s);
+	pair<int,int> collected = collectDishes();
+	int cleaned = cleanDishes(collected.first+collected.second);
+	pair<int,int> replaced = replaceDishes(collected);
+
+	ostringstream temp;
+	temp << " glasses collected: " << collected.first
+			<< " cups collected: " << collected.second
+			<< "dishes cleaned: " <<cleaned
+			<< " glasses replaced: " << replaced.first
+			<< " cups replaced: " << replaced.second;
+	log(name, temp.str());
 }
 
 std::pair<int,int> Assistant::collectDishes()
@@ -71,13 +136,28 @@ std::pair<int,int> Assistant::collectDishes()
 		}
 		ostringstream temp;
 		temp << "table: "<< i << " dishes collected: " << this_tbl_units;
-		//string msg = temp.str();
-		//log(name, msg);
 		log(name, temp.str());
 //		assert(this_tbl_units <= NUM_TABLE_UNITS); it is possible, dishes are picked up one by one, it is possible to collect > 10
 
 	}
 	assert(totalCollected == collectedDishes.first + collectedDishes.second);
+	return collectedDishes;
+}
+
+std::pair<int,int> Assistant::replaceDishes(pair<int,int> collectedDishes)
+{
+	for (int j = 0; j< collectedDishes.first ; j++)
+	{
+		sem_post(&glasses);
+		usleep(TIME_REPLACE_DISH *1000);
+	}
+
+	for (int j = 0; j< collectedDishes.second ; j++)
+	{
+		sem_post(&cups);
+		usleep(TIME_REPLACE_DISH *1000);
+	}
+
 	return collectedDishes;
 }
 
@@ -94,68 +174,8 @@ int Assistant::cleanDishes(int dishes)
 	return cleanedDishes;
 }
 
-void Assistant::doCleanupRound()
+void Assistant::takeBreak()
 {
-	string s("starting cleanup");
-	log(name,s);
-	pair<int,int> collected = collectDishes();
-	int cleaned = cleanDishes(collected.first+collected.second);
-	pair<int,int> replaced = replaceDishes(collected);
-
-	ostringstream temp;
-	temp << " glasses collected: " << collected.first
-			<< " cups collected: " << collected.second
-			<< "dishes cleaned: " <<cleaned
-			<< " glasses replaced: " << replaced.first
-			<< " cups replaced: " << replaced.second;
-	//string msg = temp.str();
-	//log(name, msg);
-	log(name, temp.str());
-}
-
-//void* Assistant:: run(Landlord* landllord)
-//void Assistant::run(Landlord* landllord)
-//{
-//		pthread_t assistantThread;
-//		pthread_create(&assistantThread, NULL, Assistant::threadFun, (void *)landllord);
-//}
-
-void* Assistant::run_thread(void * landllord)
-{
-	Assistant* ass = new Assistant();
-
-	//((Landlord*)landllord)->registerAssistent(this);
-	ass->run();
-	return 0;
-}
-
-void Assistant::run()
-{
-	ostringstream temp;
-	temp << "Assistant got to work.";
-	//string msg = temp.str();
-	//log(name, msg);
-	log(name, temp.str());
-	//while(!timeToFinish)
-	while(!bClose)
-	{
-		takeBreak();
-		doCleanupRound();
-	}
-	sem_wait(&assistantFinalRun);
-	//last time!
-	//takeBreak();
-	doCleanupRound();
-	sem_post(&landLordExit);
-	string msg = "Clocking out.";
-	log(name, msg);
-	pthread_exit(NULL);
-}
-
-//I do not have any better idea how to solve final run in other way than this:
-void Assistant::doFinalRun()
-{
-//	timeToFinish = true;
-//	sem_post(&final_run_sem);
+	usleep(TIME_REST * 1000);
 }
 

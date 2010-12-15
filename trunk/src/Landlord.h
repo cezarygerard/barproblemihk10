@@ -16,8 +16,8 @@ private:
 	//list<int> people_in_the_bar;
 	std::map<int, Person*> people_in_bar;
 	void greet();
-	void checkLastCall();
-	void checkClose();
+	void lastCall();
+	bool numPeopleInBar(int n);
 public:
 	Landlord(int gqi, int dqi);
 	virtual ~Landlord();
