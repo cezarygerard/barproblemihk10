@@ -25,7 +25,7 @@ pthread_t clockThread;
 //int msqid;
 pthread_mutex_t beerTap, /*cupboard,*/ milk, coffee, chocolate;
 sem_t glasses, cups;
-sem_t assistantFinalRun, landLordExit;
+//sem_t assistantFinalRun, landLordExit;
 
 Table tables[NUM_TABLES];
 int drink_q_id = 0;
@@ -96,8 +96,6 @@ void init()
 	pthread_mutex_init(&chocolate, NULL);
 	sem_init(&glasses, 0 , NUM_GLASSES);
 	sem_init(&cups, 0 , NUM_CUPS);
-	sem_init(&assistantFinalRun,0,0);
-	sem_init(&landLordExit,0,0);
 
 	bLastCall = false;
 	bClose = false;
@@ -120,14 +118,6 @@ void init()
 
 	//We need to create the greeing queue and then destroy it to remove leftover junk
 	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
-//	if(greeting_q_id == -1)
-//	{
-//		str << "\n                    ERROR: Failed to create greet_q errno:" << errno;
-//	}
-//	else
-//	{
-//		str << "\n                    Created greet_q: " << greeting_q_id;
-//	}
 
 	msgctl(greeting_q_id, IPC_RMID, (struct msqid_ds *) 0);
 	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE) ;
@@ -143,16 +133,23 @@ void init()
 	log(temp);
 	str.str("");
 
+	/*sleep after each thread is created to give time for initialization*/
 	Landlord::Landlord_Thread_Args llta;
 	llta.greeting_q_id = greeting_q_id;
 	llta.drink_q_id = drink_q_id;
 	pthread_create(&landlordThread, NULL, Landlord::run_thread, &llta);
+	usleep(10000);
+
+	Assistant::Assistant_Thread_Args ata;
+	ata.greeting_q_id = greeting_q_id;
+	pthread_create(&assistantThread, NULL, Assistant::run_thread, &ata);
+	usleep(10000);
+
 	Barmaid::Barmaid_Thread_Args bta;
+	bta.greeting_q_id = greeting_q_id;
 	bta.drink_q_id = drink_q_id;
 	pthread_create(&assistantThread, NULL, Barmaid::run_thread, &bta);
-	pthread_create(&assistantThread, NULL, Assistant::run_thread, NULL);
-
-	usleep(500000);	//give the threads time to initialize
+	usleep(10000);
 
 	pthread_create(&clockThread, NULL, run_clock, NULL);
 }
@@ -174,15 +171,9 @@ int main (int argc, char *argv[])
 	assert(RATIO_BEER + RATIO_CAPPUCCINO + RATIO_HOT_CHOCOLATE == 1);
 	init();
 
-
-	//timeval t_now, t_finish;
-	//gettimeofday(&t_now, NULL);
 	srand(time(NULL));
-	//t_finish.tv_sec = t_now.tv_sec + ( TIME_UNTIL_CLOSE + TIME_UNTIL_LASTCALL) /1000;
-	//t_finish.tv_sec = t_now.tv_sec + (TIME_UNTIL_LASTCALL) /1000;
+	//didn't work with i=0... that's super weird.
 	int i = 1;
-	//while(t_finish.tv_sec > t_now.tv_sec)
-	//for (int i=0; i < 2; i++)msgrcv
 	while(!bLastCall)
 	{
 		Customer::Cust_Thread_Args cta;
@@ -190,10 +181,8 @@ int main (int argc, char *argv[])
 		cta.cust_id = i;
 		cta.drink_q_id = drink_q_id;
 		cta.greeting_q_id = greeting_q_id;
-		//cta.cust_msg_q_id = msgget(CUSTOMER_START_Q+i, IPC_CREAT);
 		pthread_create(&ct, NULL, Customer::run_thread, &cta);
 		usleep(TIME_INTERVAL_CUST * 1000);
-		//gettimeofday(&t_now, NULL);
 		i++;
 	}
 

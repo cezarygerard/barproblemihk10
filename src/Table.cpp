@@ -49,7 +49,7 @@ void Table::putDish(DishType dt)
 		cups_++;
 		break;
 	}
-	assert(NUM_TABLE_UNITS -glasses_ - cups_ == val&& val <= NUM_TABLE_UNITS);
+	//assert(NUM_TABLE_UNITS -glasses_ - cups_ == val&& val <= NUM_TABLE_UNITS);
 	pthread_mutex_unlock( &dishMutex_ );
 }
 
@@ -75,7 +75,7 @@ int Table::collectNextDish(DishType& dt)
 		toReturn =1;
 	int val;
 	sem_getvalue(&emptyUnits_, &val);
-	assert(NUM_TABLE_UNITS -glasses_ - cups_ == val&& val <= NUM_TABLE_UNITS);
+	//assert(NUM_TABLE_UNITS -glasses_ - cups_ == val&& val <= NUM_TABLE_UNITS);
 	pthread_mutex_unlock( &dishMutex_ );
 
 	return toReturn;

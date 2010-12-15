@@ -22,15 +22,21 @@ class Assistant: public Person{
 	//pthread_cond_t  condition_cond ;
 	//sem_t final_run_sem;
 	pthread_t runThread;
-	bool timeToFinish;
+	int greeting_q_id;
+	bool bClose;
 	void run();
-	void doFinalRun();
 	void doCleanupRound();
+	void greetLandlord(bool leaving);
 
 public:
-	Assistant();
+	Assistant(int dqi);
 	virtual ~Assistant();
 	static void* run_thread(void *);
+	void lastOrder();
+	void closeUp();
+	typedef struct __Assistant_Thread_Args {
+			int greeting_q_id;
+		} Assistant_Thread_Args;
 };
 
 #endif /* ASSISTANT_H_ */
