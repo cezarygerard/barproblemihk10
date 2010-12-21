@@ -33,8 +33,10 @@ void Assistant::run()
 	ostringstream temp;
 	temp << "Assistant got to work.";
 	log(name, temp.str());
+	//greet the landlord
 	greetLandlord(false);
 
+	//clean and rest loop
 	while(!bClose)
 	{
 		takeBreak();
@@ -52,6 +54,7 @@ void Assistant::run()
 void Assistant::greetLandlord(bool leaving){
 	Landlord::Greeting_Msg_Args tosend;
 	tosend.leaving = leaving;
+	//static id for assistant
 	tosend.person_id = -1;
 	tosend.person_ptr = this;
 
@@ -110,12 +113,14 @@ void Assistant::doCleanupRound()
 std::pair<int,int> Assistant::collectDishes()
 {
 	int totalCollected = 0;
+	//first = glasses, second = cups
 	pair<int,int> collectedDishes = pair<int,int>(0,0);
 
 	for (int i = 0; i < NUM_TABLES; i++)
 	{
 		int this_tbl_units=0;
 		DishType collectedDish;
+		//collect all dishes on current table
 		while(!(tables[i].collectNextDish(collectedDish)))
 		{
 			totalCollected++;
@@ -129,15 +134,12 @@ std::pair<int,int> Assistant::collectDishes()
 				break;
 			default:
 				break;
-
-
 			}
 			usleep(TIME_COLLECT_DISH *1000);
 		}
 		ostringstream temp;
 		temp << "table: "<< i << " dishes collected: " << this_tbl_units;
 		log(name, temp.str());
-//		assert(this_tbl_units <= NUM_TABLE_UNITS); it is possible, dishes are picked up one by one, it is possible to collect > 10
 
 	}
 	assert(totalCollected == collectedDishes.first + collectedDishes.second);
@@ -146,12 +148,14 @@ std::pair<int,int> Assistant::collectDishes()
 
 std::pair<int,int> Assistant::replaceDishes(pair<int,int> collectedDishes)
 {
+	//increases glasses semaphore for each glass collected
 	for (int j = 0; j< collectedDishes.first ; j++)
 	{
 		sem_post(&glasses);
 		usleep(TIME_REPLACE_DISH *1000);
 	}
 
+	//increases cups semaphore for each cup collected
 	for (int j = 0; j< collectedDishes.second ; j++)
 	{
 		sem_post(&cups);

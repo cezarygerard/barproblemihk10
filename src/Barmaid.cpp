@@ -32,8 +32,10 @@ void Barmaid::run()
 	temp << "Barmaid got to work.";
 	string msg = temp.str();
 	log(name, msg);
+	//greet landlord
 	greetLandlord(false);
 
+	//bartend until closing time
 	while(!bClose)
 	{
 		bartend();

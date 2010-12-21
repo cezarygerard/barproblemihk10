@@ -9,7 +9,6 @@
 #include <cassert>
 
 Table::Table() {
-	// TODO Auto-generated constructor stub
 	sem_init(&emptyUnits_, 0 , NUM_TABLE_UNITS);
 	pthread_mutex_init(&dishMutex_, 0);
 	glasses_ =0;
@@ -17,7 +16,6 @@ Table::Table() {
 }
 
 Table::~Table() {
-	// TODO Auto-generated destructor stub
 }
 
 
@@ -32,6 +30,7 @@ void Table::putDish(DishType dt)
 //	sem_getvalue(&emptyUnits_, &val);
 //	is used to acquire the value of semaphore into "val"
 //	only for the assertion beneath.
+	//Update: assertion removed
 
 	sem_wait(&emptyUnits_);
 
@@ -49,12 +48,15 @@ void Table::putDish(DishType dt)
 		cups_++;
 		break;
 	}
-	//assert(NUM_TABLE_UNITS -glasses_ - cups_ == val&& val <= NUM_TABLE_UNITS);
+
 	pthread_mutex_unlock( &dishMutex_ );
 }
 
 int Table::collectNextDish(DishType& dt)
 {
+	//collect the next dish by decrementing the num of glasses or cups on the table
+	//also post to the emptyUnits semaphore
+
 	int toReturn;
 	pthread_mutex_lock( &dishMutex_ );
 	if(glasses_ >0)
@@ -75,7 +77,6 @@ int Table::collectNextDish(DishType& dt)
 		toReturn =1;
 	int val;
 	sem_getvalue(&emptyUnits_, &val);
-	//assert(NUM_TABLE_UNITS -glasses_ - cups_ == val&& val <= NUM_TABLE_UNITS);
 	pthread_mutex_unlock( &dishMutex_ );
 
 	return toReturn;

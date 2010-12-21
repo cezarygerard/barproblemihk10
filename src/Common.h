@@ -30,10 +30,9 @@ class Table;
 //msg queue declarations:
 #define DRINK_Q 0x4
 #define GREET_Q 0x5
-//#define CUSTOMER_START_Q 0x20
 
 
-//constants:
+//CONSTANTS:
 
 ///number of limited resources
 #define	NUM_TABLES				5
@@ -41,7 +40,7 @@ class Table;
 #define NUM_GLASSES				20
 #define NUM_CUPS				10
 
-//will choose rand number from 1 to this const for each cust
+///will choose rand number from 1 to this const for each cust
 #define	MAX_DRINKS_PER_CUST		20
 
 ///order ratio for certain drinks, summing up must be ==1 (otherwise assertion will fail)
@@ -49,9 +48,8 @@ class Table;
 #define	RATIO_CAPPUCCINO		0.30
 #define	RATIO_HOT_CHOCOLATE		0.20
 
-//
-#define	TIME_UNTIL_LASTCALL		5000	//milliseconds
-//#define	TIME_UNTIL_CLOSE		5000	//length otf last call in milliseconds
+///times in milliseconds
+#define	TIME_UNTIL_LASTCALL		5000	//how long the simulation will run until last call
 #define TIME_INTERVAL_CUST		200		//how often a customer enters the bar
 #define TIME_TO_DRINK			50		//how long it takes for a customer to consume any drink
 
@@ -81,25 +79,27 @@ enum GreetingEventType{ ENTERING, LEAVING };
 ///converts OrderType to string
 const char* typeAsString(OrderType type);
 
-//extern int msqid;
-extern pthread_mutex_t beerTap, cupboard, milk, coffee, chocolate;
+///mutexes abstracting the beer tap, milk, coffee, chocolate resources
+extern pthread_mutex_t beerTap, milk, coffee, chocolate;
 /// semaphores abstracting glasses and cups
-extern sem_t glasses, cups;//, final_run_sem , tables[NUM_TABLES];
-//extern sem_t assistantFinalRun, landLordExit;
+extern sem_t glasses, cups;
 ///table of semaphores abstracting tables, each table has limited NUM_TABLE_UNITS defined before
 extern Table tables[NUM_TABLES];
 
-
+///booleans for last call and time to close
 extern volatile bool bLastCall, bClose;
 
-//prints formatted text to console
+///prints formatted text to console
+///@param name	the name of the thread sending the log
+///@param message	the message to send to output
 void log(string name, string message);
 void log(string message);
 
 ///function which runs the clock
 void* run_clock(void *dptr);
 
-/// returns thread-safe random number
+///get's a thread-safe random number
+///@return a thread-safe random number
 int getRand();
 
 ///constants useful for converting different time formats

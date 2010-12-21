@@ -14,6 +14,7 @@ Customer::Customer(int cid, int dqi, int gqi) {
 	temp << "Customer_" << cid;
 	name = temp.str();
 
+	//mutex for condition variables
 	pthread_mutex_init(&mutex, NULL);
 	//last call condition
 	pthread_cond_init(&lc_condition, NULL);
@@ -24,14 +25,13 @@ Customer::Customer(int cid, int dqi, int gqi) {
 	drinksLeft = chooseMaxDrinks();
 	favTableIndex = chooseFavTable();
 
-	//my_q_id = cmqi;
 	my_id = cid;
 	drink_q_id = dqi;
 	greeting_q_id = gqi;
 }
 
 Customer::~Customer() {
-	// TODO Auto-generated destructor stub
+
 }
 
 void* Customer::run_thread(void *dptr)
@@ -50,22 +50,17 @@ void Customer::run()
 	log(name, temp.str());
 	greetLandlord(false);
 
-	chillAtPub();
-
-	pthread_exit(NULL);
-}
-
-void Customer::chillAtPub()
-{
+	//order a drink and then drink it until no drinks left
 	while(drinksLeft > 0)
 	{
 		orderDrink();
 		drink();
 	}
 
-	//drunk. let's leave
 	greetLandlord(true);
+	pthread_exit(NULL);
 }
+
 
 void Customer::greetLandlord(bool leaving){
 	Landlord::Greeting_Msg_Args tosend;
@@ -100,12 +95,14 @@ void Customer::greetLandlord(bool leaving){
 
 void Customer::lastOrder()
 {
+	//only beer drinkers are allowed one more drink
 	pthread_mutex_lock( &mutex );
 	//drinksLeft is going to get decremeted after he finishes, so set at 2.
 	if (orderType == BEER && drinksLeft > 2)
 		drinksLeft = 2;
 	else
 		drinksLeft = 1;
+	//wake up all the beer drinkers so they can order one more if they want
 	pthread_cond_signal(&lc_condition);
 	pthread_mutex_unlock( &mutex );
 }
@@ -148,6 +145,7 @@ void Customer::orderDrink()
 
 void Customer::receiveDrink()
 {
+	//tell the customer to wake up and "take drink"
 	pthread_mutex_lock(&mutex);
 	pthread_cond_signal(&rdy_condition);
 	pthread_mutex_unlock( &mutex );
@@ -159,7 +157,8 @@ void Customer::drink()
 	gettimeofday(&tp, NULL);
 	ts.tv_sec  = tp.tv_sec;
 	ts.tv_nsec = tp.tv_usec * 1000;
-;
+
+	//wait the thread if drink beer
 	if (orderType == BEER)
 	{
 		pthread_mutex_lock( &mutex );
@@ -169,6 +168,7 @@ void Customer::drink()
 		drinksLeft--;
 		pthread_mutex_unlock( &mutex );
 	}
+	//else, just sleep it
 	else
 	{
 		pthread_mutex_lock( &mutex );
@@ -194,6 +194,7 @@ void Customer::drink()
 			break;
 	}
 
+	//put the dish on customer's table
 	tables[favTableIndex].putDish(dt);
 }
 

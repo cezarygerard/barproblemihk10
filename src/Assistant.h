@@ -18,13 +18,16 @@ class Assistant: public Person{
 	pair<int,int> collectDishes();
 
 	///cleans collected dishes
+	///@param dishes number of dishes to clean
 	///@return number of dishes cleaned
 	int cleanDishes(int dishes);
 
 	///replaces dishes increasing semaphores vaules
+	///@param collectedDishes <glasses, cups> to replace
+	///@return the <glasses, cups> that were replaced
 	pair<int,int>  replaceDishes(pair<int,int> collectedDishes); //glasses, cups
 
-	///
+	///sleeps the current thread for the time specified in common
 	void takeBreak() ;
 
 	///mutex and conditional variable used to force thread to timeout on condition_cond using pthread_cond_timedwait
@@ -47,11 +50,12 @@ class Assistant: public Person{
 	void run();
 
 	///greets/says goodbye to landlor
+	///@param leaving	true if leaving, false if greeting
 	void greetLandlord(bool leaving);
 
 public:
 	///@param greetings queue id
-	Assistant(int dqi);
+	Assistant(int gqi);
 	virtual ~Assistant();
 
 	///creates new assistant, and calls run().

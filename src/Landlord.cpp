@@ -23,23 +23,28 @@ void Landlord::run()
 	temp << "Landlord got to work.";
 	log(name, temp.str());
 
+	//greet and bartend until its time for last call
 	while (!bLastCall)
 	{
 		greet();
 		bartend();
 	}
 
+	//inform everyone in the bar of last call
 	lastCall();
 
+	//continue to greek and bartend until only the barmaid and assistant are left
 	while (!numPeopleInBar(2))
 	{
 		greet();
 		bartend();
 	}
 
+	//tell assistant and barmaid to close up
 	for (map<int, Person*>::iterator it=people_in_bar.begin() ; it != people_in_bar.end(); it++ )
 			((*it).second)->closeUp();
 
+	//say goodbye to employees until the bar is empty
 	while (!numPeopleInBar(0))
 	{
 		greet();
@@ -71,16 +76,15 @@ void Landlord::greet()
 		temp.str("");
 		if (!msg_buf.leaving)
 		{
-			//temp << "Recieved entering message from cust_" << msg_buf.person_id;
+			//add person to map
 			people_in_bar[msg_buf.person_id] = msg_buf.person_ptr;
 		}
 		else
 		{
-			//temp << "Recieved leaving message from cust_" << msg_buf.person_id;
+			//remove person from map
 			people_in_bar.erase(msg_buf.person_id);
 		}
 
-		//log(name, temp.str());
 		temp.str("");
 		temp << "cust_id of people in the bar:";
 		for (map<int, Person*>::iterator it=people_in_bar.begin() ; it != people_in_bar.end(); it++ )
@@ -92,6 +96,7 @@ void Landlord::greet()
 
 void Landlord::lastCall()
 {
+	//call everyone's lastOrder() method
 	for (map<int, Person*>::iterator it=people_in_bar.begin() ; it != people_in_bar.end(); it++ )
 		((*it).second)->lastOrder();
 }

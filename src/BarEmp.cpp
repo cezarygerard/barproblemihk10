@@ -11,9 +11,11 @@
 void BarEmp::bartend()
 {
 	ostringstream temp;
-	//string msg;
 	Drink_Msg_Args msg_buf;
+	//get next drink order details from queue
 	int len = msgrcv(drink_q_id, (void*) &msg_buf, sizeof(Drink_Msg_Args), 0, IPC_NOWAIT);
+
+	//something went wrong
 	if(len == -1)
 	{
 		if(errno == ENOMSG)
@@ -24,9 +26,8 @@ void BarEmp::bartend()
 
 		temp.str("");
 		temp << "error bartending - " << errno << "  q_id: " << drink_q_id;
-		//msg = temp.str();
 		log(name, temp.str());
-		//log(name, msg);
+		//let's wait for a little
 		usleep(250000);
 	}
 
@@ -71,8 +72,6 @@ void BarEmp::bartend()
 
 	temp.str("");
 	temp << "Gives " << cust->getName() << " a " << typeAsString(type);
-	//msg = temp.str();
-	//log(name, msg);
 	log(name, temp.str());
 	//tell cust their drink is ready
 	cust->receiveDrink();
