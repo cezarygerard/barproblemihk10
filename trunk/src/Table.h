@@ -14,29 +14,28 @@
 #include "Common.h"
 
 class Table {
+	///mutex for dish counts
 	pthread_mutex_t dishMutex_;
+	///semaphore representing empty units on table
 	sem_t emptyUnits_;
+	///number of glasses on table
 	int glasses_;
+	///number of cups on table
 	int cups_;
 
 public:
 
-	/**
-	 * should be run by customer
-	 * @param GLASS / CUP to be put on table
-	 */
+	///Should be run by customer: puts dish on the table
+	///@param GLASS / CUP to be put on table
 	void putDish(DishType dt);
 
-	/**
-	 * should be run by assistant
-	 * @param dt - place to write what DishType was collected
-	 * @return value indicating if anything was collected (value 1 means that table was empty)
-	 */
+	///Should be run by assistant: removes dish from table
+	///@param dt - place to write what DishType was collected
+	///@return value indicating if anything was collected (value 1 means that table was empty)
 	int collectNextDish(DishType& dt);
 
 	Table();
 	virtual ~Table();
-
 };
 
 #endif /* TABLE_H_ */

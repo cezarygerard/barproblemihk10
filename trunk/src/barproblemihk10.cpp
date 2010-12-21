@@ -1,9 +1,7 @@
 //============================================================================
-// Name        : barproblemihk10.cpp
-// Author      : 
-// Version     :
-// Copyright   : 
-// Description : Hello World in C++, Ansi-style
+// Name        : The Bar Problem
+// Author      : Jeff Jankowski, Jonathan Mann
+// Description : Parallelized Simulation of a Pub
 //============================================================================
 
 #include "Common.h"
@@ -11,8 +9,6 @@
 #include "Table.h";
 #include "Barmaid.h"
 #include "Assistant.h"
-
-//#define NUM_THREADS     5
 
 using namespace std;
 
@@ -22,31 +18,31 @@ pthread_t assistantThread;
 pthread_t barmainThread;
 pthread_t clockThread;
 
-//int msqid;
-pthread_mutex_t beerTap, /*cupboard,*/ milk, coffee, chocolate;
+pthread_mutex_t beerTap, milk, coffee, chocolate;
 sem_t glasses, cups;
-//sem_t assistantFinalRun, landLordExit;
 
 Table tables[NUM_TABLES];
+//placeholder values
 int drink_q_id = 0;
 int greeting_q_id = 0;
+
 volatile bool bLastCall, bClose;
 
 //used in getRand() which call rand_r(*uint);
-volatile unsigned int seed =0;
+volatile unsigned int seed = 0;
 
 int getRand()
 {
-	if(seed ==0 )
-	{
+	//seed only once
+	if (seed == 0)
 		seed = time(NULL);
-	}
-	return  rand_r((unsigned int*) &seed);
 
+	return  rand_r((unsigned int*) &seed);
 }
 
 void log(string name,string message)
 {
+	//format log message with name
 	struct timeval now;
 	gettimeofday(&now, NULL);
 	pthread_mutex_lock(&output_mtx);
@@ -56,6 +52,7 @@ void log(string name,string message)
 
 void log(string message)
 {
+	//format log message without sender name
 	struct timeval now;
 	gettimeofday(&now, NULL);
 	pthread_mutex_lock(&output_mtx);
@@ -83,8 +80,8 @@ void* run_clock(void *dptr)
 	bLastCall = true;
 
 	string temp = "\n------------------------------------------  LAST CALL! ------------------------------------------\n";
-	log(temp);;
-	//usleep(TIME_UNTIL_CLOSE * 1000);
+	log(temp);
+
 	return 0;
 }
 
@@ -104,6 +101,7 @@ void init()
 	string temp = "Bar simulation started...";
 	log(temp);
 
+	//We need to create the drink queue and then destroy it to remove leftover junk
 	drink_q_id = msgget(DRINK_Q, 0666|IPC_CREAT|IPC_PRIVATE);
 	msgctl(drink_q_id, IPC_RMID, (struct msqid_ds *) 0);
 	drink_q_id = msgget(DRINK_Q, 0666|IPC_CREAT|IPC_PRIVATE);
@@ -116,9 +114,8 @@ void init()
 		str << "Created drink_q: " << drink_q_id;
 	}
 
-	//We need to create the greeing queue and then destroy it to remove leftover junk
+	//We need to create the greeting queue and then destroy it to remove leftover junk
 	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE);
-
 	msgctl(greeting_q_id, IPC_RMID, (struct msqid_ds *) 0);
 	greeting_q_id = msgget(GREET_Q, 0666|IPC_CREAT|IPC_PRIVATE) ;
 	if(greeting_q_id == -1)
@@ -156,6 +153,7 @@ void init()
 
 int main (int argc, char *argv[])
 {
+	//Error message data for reference
 	int size = sizeof(int)*2 + sizeof(bool);
 		ostringstream str;
 	str<< " E2BIG " << E2BIG <<
@@ -168,12 +166,14 @@ int main (int argc, char *argv[])
 	string temp = str.str();
 	log(temp);
 
+	//make sure drink ratios match up
 	assert(RATIO_BEER + RATIO_CAPPUCCINO + RATIO_HOT_CHOCOLATE == 1);
 	init();
 
 	srand(time(NULL));
 	//didn't work with i=0... that's super weird.
 	int i = 1;
+	//create customers at set interval until last call
 	while(!bLastCall)
 	{
 		Customer::Cust_Thread_Args cta;
